@@ -3,6 +3,7 @@
 import ProtectedRoute from "../../components/ProtectedRoute";
 import { useAuth } from "../../contexts/AuthContext";
 import { logout } from "../../firebaseConfig";
+import ProductList from "../../components/dashboard/ProductList";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -35,13 +36,7 @@ export default function Dashboard() {
           </div>
         </nav>
         <div className="max-w-6xl mx-auto p-6">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Dashboard</h2>
-            <p className="text-gray-600">
-              Bu alan korumalı bir sayfadır. Sadece giriş yapmış kullanıcılar
-              görebilir.
-            </p>
-          </div>
+          <ProductList />
         </div>
       </div>
     </ProtectedRoute>
