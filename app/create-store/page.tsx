@@ -73,24 +73,33 @@ export default function CreateStorePage() {
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
     
-    // Sadece rakam, boşluk, tire ve parantez karakterlerine izin ver
-    value = value.replace(/[^0-9\s\-\(\)]/g, '');
+    // Sadece rakamları al (boşlukları kaldır)
+    const digits = value.replace(/[^0-9]/g, '');
     
-    // Türkiye telefon formatına göre otomatik formatlama
-    if (value.length <= 11) {
-      if (value.startsWith('0')) {
-        // 0555 123 45 67 formatı
-        if (value.length > 4 && value.length <= 7) {
-          value = value.slice(0, 4) + ' ' + value.slice(4);
-        } else if (value.length > 7 && value.length <= 9) {
-          value = value.slice(0, 4) + ' ' + value.slice(4, 7) + ' ' + value.slice(7);
-        } else if (value.length > 9) {
-          value = value.slice(0, 4) + ' ' + value.slice(4, 7) + ' ' + value.slice(7, 9) + ' ' + value.slice(9);
+    // Maksimum 11 rakam (0555 123 45 67)
+    if (digits.length > 11) return;
+    
+    // Otomatik formatlama - Türkiye telefon formatı: 0555 123 45 67
+    let formatted = '';
+    if (digits.length > 0) {
+      if (digits.startsWith('0')) {
+        // 0XXX XXX XX XX formatı
+        if (digits.length <= 4) {
+          formatted = digits;
+        } else if (digits.length <= 7) {
+          formatted = digits.slice(0, 4) + ' ' + digits.slice(4);
+        } else if (digits.length <= 9) {
+          formatted = digits.slice(0, 4) + ' ' + digits.slice(4, 7) + ' ' + digits.slice(7);
+        } else {
+          formatted = digits.slice(0, 4) + ' ' + digits.slice(4, 7) + ' ' + digits.slice(7, 9) + ' ' + digits.slice(9);
         }
+      } else {
+        // 0 ile başlamıyorsa sadece rakamları göster
+        formatted = digits;
       }
     }
     
-    setFormData((prev) => ({ ...prev, phone: value }));
+    setFormData((prev) => ({ ...prev, phone: formatted }));
   };
 
   const validateForm = async () => {
@@ -401,7 +410,7 @@ export default function CreateStorePage() {
                     onChange={handlePhoneChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     placeholder="0555 123 45 67"
-                    maxLength={13}
+                    maxLength={14}
                     required
                   />
                 </div>
