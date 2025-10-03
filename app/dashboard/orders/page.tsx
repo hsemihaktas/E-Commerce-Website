@@ -110,12 +110,12 @@ export default function OrdersPage() {
         message: "Sipariş başarıyla iptal edildi!",
       });
       setShowAlertModal(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setShowConfirmModal(false);
       setAlertConfig({
         type: "error",
         title: "Hata",
-        message: `Sipariş iptal edilirken hata: ${error.message}`,
+        message: `Sipariş iptal edilirken hata: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`,
       });
       setShowAlertModal(true);
     } finally {

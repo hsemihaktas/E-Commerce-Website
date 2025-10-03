@@ -209,11 +209,11 @@ export default function CreateStorePage() {
       setTimeout(() => {
         router.push("/dashboard");
       }, 2000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setAlertConfig({
         type: "error",
         title: "Hata",
-        message: `Mağaza oluşturulurken hata: ${error.message}`,
+        message: `Mağaza oluşturulurken hata: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`,
       });
       setShowAlertModal(true);
     } finally {
@@ -330,7 +330,7 @@ export default function CreateStorePage() {
                   value={formData.storeName}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="Örn: Ahmet'in Teknoloji Mağazası"
+                  placeholder="Örn:                   Ahmet&apos;in Teknoloji Mağazası"
                   required
                 />
               </div>

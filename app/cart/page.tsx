@@ -12,7 +12,6 @@ export default function CartPage() {
     updateQuantity,
     removeFromCart,
     getCartTotal,
-    clearCart,
     getCartItemsCount,
   } = useCart();
   const [showCheckout, setShowCheckout] = useState(false);

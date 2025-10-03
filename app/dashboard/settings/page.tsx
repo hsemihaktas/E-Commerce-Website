@@ -237,11 +237,11 @@ export default function SettingsPage() {
       setTimeout(() => {
         router.push("/");
       }, 2000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setAlertConfig({
         type: "error",
         title: "Silme Hatası",
-        message: error.message || "Mağaza silinirken bir hata oluştu.",
+        message: error instanceof Error ? error.message : "Mağaza silinirken bir hata oluştu.",
       });
       setShowAlertModal(true);
     } finally {
