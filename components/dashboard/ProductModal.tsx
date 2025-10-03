@@ -11,6 +11,7 @@ interface Product {
   description: string;
   price: number;
   category: string;
+  stock: number;
 }
 
 interface ProductModalProps {
@@ -33,6 +34,7 @@ export default function ProductModal({
   const [productDescription, setProductDescription] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [productCategory, setProductCategory] = useState("");
+  const [productStock, setProductStock] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -41,12 +43,14 @@ export default function ProductModal({
       setProductDescription(product.description);
       setProductPrice(product.price.toString());
       setProductCategory(product.category);
+      setProductStock(product.stock?.toString() || "0");
     } else {
       // Modal yeni ürün için açılıyorsa formu temizle
       setProductName("");
       setProductDescription("");
       setProductPrice("");
       setProductCategory("");
+      setProductStock("");
     }
   }, [isEdit, product, isOpen]);
 
@@ -60,6 +64,7 @@ export default function ProductModal({
         description: productDescription,
         price: parseFloat(productPrice),
         category: productCategory,
+        stock: parseInt(productStock) || 0,
         userId: user?.uid,
         userEmail: user?.email,
         updatedAt: new Date(),
@@ -179,6 +184,21 @@ export default function ProductModal({
                 <option value="kozmetik">Kozmetik</option>
                 <option value="diger">Diğer</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Stok Adedi
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={productStock}
+                onChange={(e) => setProductStock(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Örn: 50"
+                required
+              />
             </div>
 
             <div className="flex space-x-3 pt-4">

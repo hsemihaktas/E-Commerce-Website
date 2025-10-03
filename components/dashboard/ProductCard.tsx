@@ -11,6 +11,7 @@ interface Product {
   description: string;
   price: number;
   category: string;
+  stock: number;
   createdAt: any;
   userId: string;
 }
@@ -59,6 +60,18 @@ export default function ProductCard({
       diger: "Diğer",
     };
     return categories[category] || category;
+  };
+
+  const getStockStatus = (stock: number) => {
+    if (stock === 0) return "Stokta Yok";
+    if (stock <= 5) return "Az Stok";
+    return "Stokta";
+  };
+
+  const getStockStatusColor = (stock: number) => {
+    if (stock === 0) return "bg-red-100 text-red-800";
+    if (stock <= 5) return "bg-yellow-100 text-yellow-800";
+    return "bg-green-100 text-green-800";
   };
 
   const formatDate = (date: any) => {
@@ -111,6 +124,19 @@ export default function ProductCard({
         </span>
         <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
           {getCategoryLabel(product.category)}
+        </span>
+      </div>
+
+      <div className="flex justify-between items-center mb-2">
+        <span
+          className={`px-2 py-1 text-xs rounded-full ${getStockStatusColor(
+            product.stock || 0
+          )}`}
+        >
+          {getStockStatus(product.stock || 0)}
+        </span>
+        <span className="text-sm text-gray-600">
+          Stok: {product.stock || 0} adet
         </span>
       </div>
 
