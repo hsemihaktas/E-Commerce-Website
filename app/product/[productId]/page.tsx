@@ -53,7 +53,9 @@ export default function ProductPage({
   const loadProduct = async () => {
     try {
       setLoading(true);
-      const productDoc = await getDoc(doc(db, "products", resolvedParams.productId));
+      const productDoc = await getDoc(
+        doc(db, "products", resolvedParams.productId)
+      );
 
       if (productDoc.exists()) {
         setProduct({

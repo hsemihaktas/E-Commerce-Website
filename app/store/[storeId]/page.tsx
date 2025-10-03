@@ -21,7 +21,11 @@ interface CartItem extends Product {
   quantity: number;
 }
 
-export default function StorePage({ params }: { params: Promise<{ storeId: string }> }) {
+export default function StorePage({
+  params,
+}: {
+  params: Promise<{ storeId: string }>;
+}) {
   const resolvedParams = use(params);
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
