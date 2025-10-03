@@ -1,15 +1,45 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import DashboardStats from "../../components/dashboard/DashboardStats";
 import DashboardCharts from "../../components/dashboard/DashboardCharts";
 import RecentActivity from "../../components/dashboard/RecentActivity";
 import { useAuth } from "../../contexts/AuthContext";
+import { StoreSettings } from "../../types/store";
+import { getStoreSettings } from "../../services/storeService";
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(
+    null
+  );
+  const router = useRouter();
 
+  useEffect(() => {
+    if (user?.uid) {
+      loadStoreSettings();
+    }
+  }, [user?.uid]);
+
+  const loadStoreSettings = async () => {
+    try {
+      const settings = await getStoreSettings(user!.uid);
+
+      // Eğer mağaza ayarları yoksa veya eksikse settings'e yönlendir
+      if (!settings || !settings.storeName || !settings.description) {
+        router.push("/dashboard/settings");
+        return;
+      }
+
+      setStoreSettings(settings);
+    } catch (error) {
+      console.error("Mağaza ayarları yüklenirken hata:", error);
+      router.push("/dashboard/settings");
+    }
+  };
   return (
     <ProtectedRoute>
       <DashboardLayout>
@@ -18,11 +48,19 @@ export default function Dashboard() {
           <div className="border-b border-gray-200 pb-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {storeSettings ? storeSettings.storeName : "Dashboard"}
+                </h1>
                 <p className="mt-2 text-gray-600">
-                  E-ticaret mağazanızın genel durumunu buradan takip
-                  edebilirsiniz.
+                  {storeSettings
+                    ? `${storeSettings.description}`
+                    : "E-ticaret mağazanızın genel durumunu buradan takip edebilirsiniz."}
                 </p>
+                {storeSettings?.contactInfo?.city && (
+                  <p className="mt-1 text-sm text-gray-500">
+                    📍 {storeSettings.contactInfo.city}
+                  </p>
+                )}
               </div>
               <div className="mt-4 sm:mt-0">
                 <a

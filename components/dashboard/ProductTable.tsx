@@ -13,7 +13,8 @@ interface Product {
   category: string;
   stock: number;
   createdAt: any;
-  userId: string;
+  storeId: string;
+  storeName?: string;
 }
 
 interface ProductTableProps {

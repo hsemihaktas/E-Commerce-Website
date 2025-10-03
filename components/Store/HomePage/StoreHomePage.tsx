@@ -27,7 +27,8 @@ export default function StoreHomePage() {
       name: product.name,
       price: product.price,
       stock: product.stock,
-      userId: product.userId, // Ürünün sahibi/satıcısı
+      storeId: product.storeId,
+      userId: product.userId, // Geriye dönük uyumluluk
     });
     setMessage(`"${product.name}" sepete eklendi!`);
     setTimeout(() => setMessage(""), 3000);
@@ -40,26 +41,52 @@ export default function StoreHomePage() {
   const loadProducts = async () => {
     try {
       setLoading(true);
-      const productsWithStore = await loadAllProducts();
+      const result = await loadAllProducts();
+      const productsWithStore = result.products;
+      const allStoreSettings = result.allStores;
 
       setProducts(productsWithStore);
 
-      // Mağazaları grupla
+      // Önce ürünü olan mağazaları grupla
       const storesMap = new Map<string, Store>();
       productsWithStore.forEach((product) => {
-        if (!storesMap.has(product.userId)) {
-          storesMap.set(product.userId, {
-            userId: product.userId,
+        const storeId = product.storeId;
+
+        if (!storesMap.has(storeId)) {
+          const store = {
+            userId: product.userId || storeId, // Geriye dönük uyumluluk
             email: product.storeOwner?.email || "Bilinmiyor",
             displayName: product.storeOwner?.displayName,
+            storeName: product.storeSettings?.storeName || product.storeName,
+            storeDescription: product.storeSettings?.description,
             products: [],
-          });
+          };
+
+          storesMap.set(storeId, store);
         }
-        storesMap.get(product.userId)?.products.push(product);
+        storesMap.get(storeId)?.products.push(product);
+      }); // Şimdi ürünü olmayan ama mağaza kurmuş kişileri de ekle
+      allStoreSettings.forEach((storeData, storeId) => {
+        if (
+          !storesMap.has(storeId) &&
+          storeData.storeName &&
+          storeData.storeName !== "Mağazam"
+        ) {
+          const store = {
+            userId: storeData.userId || storeId,
+            email: storeData.contactInfo?.email || "Bilinmiyor",
+            displayName: storeData.contactInfo?.email?.split("@")[0],
+            storeName: storeData.storeName,
+            storeDescription: storeData.description,
+            products: [],
+          };
+
+          storesMap.set(storeId, store);
+        }
       });
 
-      setStores(Array.from(storesMap.values()));
-      console.log("🏪 Mağaza sayısı:", storesMap.size);
+      const storesList = Array.from(storesMap.values());
+      setStores(storesList);
     } catch (error) {
       console.error("❌ Ürünler yüklenirken hata:", error);
     } finally {

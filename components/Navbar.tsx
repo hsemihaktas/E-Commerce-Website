@@ -1,17 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { logout } from "../firebaseConfig";
+import { StoreSettings } from "../types/store";
+import { getStoreSettings } from "../services/storeService";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(
+    null
+  );
   const pathname = usePathname();
   const { user } = useAuth();
   const { getCartItemsCount } = useCart();
+
+  useEffect(() => {
+    if (user?.uid) {
+      loadStoreSettings();
+    }
+  }, [user?.uid]);
+
+  const loadStoreSettings = async () => {
+    try {
+      const settings = await getStoreSettings(user!.uid);
+      setStoreSettings(settings);
+    } catch (error) {
+      console.error("Navbar mağaza ayarları yükleme hatası:", error);
+    }
+  };
 
   const handleLogout = async () => {
     try {

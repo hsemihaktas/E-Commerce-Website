@@ -8,7 +8,8 @@ export interface CartItem {
   price: number;
   quantity: number;
   stock: number;
-  userId?: string; // Ürünün sahibi/satıcısı
+  storeId?: string; // Mağaza ID'si
+  userId?: string; // Geriye dönük uyumluluk
 }
 
 interface CartContextType {
@@ -18,6 +19,7 @@ interface CartContextType {
     name: string;
     price: number;
     stock: number;
+    storeId?: string;
     userId?: string;
   }) => void;
   removeFromCart: (productId: string) => void;
@@ -37,6 +39,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     name: string;
     price: number;
     stock: number;
+    storeId?: string;
     userId?: string;
   }) => {
     setCartItems((prevItems) => {

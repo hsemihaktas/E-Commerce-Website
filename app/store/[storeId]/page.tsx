@@ -5,6 +5,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../../firebaseConfig";
 import { createOrder } from "../../../services/orderService";
 import { Customer, OrderItem } from "../../../types/order";
+import StoreHeader from "../../../components/Store/StoreHeader";
 
 interface Product {
   id: string;
@@ -208,305 +209,312 @@ export default function StorePage({
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Products Grid */}
-        <div className="lg:col-span-2">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">Mağaza</h1>
+    <div>
+      {/* Store Header */}
+      <StoreHeader storeId={resolvedParams.storeId} />
 
-          {products.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">
-                Bu mağazada henüz ürün bulunmuyor.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden"
-                >
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {product.name}
-                    </h3>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Products Grid */}
+          <div className="lg:col-span-2">
+            <h2 className="text-2xl font-bold text-gray-900 mb-8">Ürünler</h2>
 
-                    <p className="text-gray-600 text-sm mb-3">
-                      {product.description || "Açıklama bulunmuyor"}
-                    </p>
+            {products.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500">
+                  Bu mağazada henüz ürün bulunmuyor.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {products.map((product) => (
+                  <div
+                    key={product.id}
+                    className="bg-white rounded-lg shadow-md overflow-hidden"
+                  >
+                    <div className="p-4">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        {product.name}
+                      </h3>
 
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-2xl font-bold text-blue-600">
-                        ₺{product.price.toFixed(2)}
-                      </span>
-                      <span
-                        className={`text-sm px-2 py-1 rounded ${
-                          product.stock > 5
-                            ? "bg-green-100 text-green-800"
-                            : product.stock > 0
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
+                      <p className="text-gray-600 text-sm mb-3">
+                        {product.description || "Açıklama bulunmuyor"}
+                      </p>
+
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-2xl font-bold text-blue-600">
+                          ₺{product.price.toFixed(2)}
+                        </span>
+                        <span
+                          className={`text-sm px-2 py-1 rounded ${
+                            product.stock > 5
+                              ? "bg-green-100 text-green-800"
+                              : product.stock > 0
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {product.stock > 0
+                            ? `${product.stock} stok`
+                            : "Stok yok"}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => addToCart(product)}
+                        disabled={product.stock === 0}
+                        className={`w-full py-2 px-4 rounded-md font-medium ${
+                          product.stock === 0
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : "bg-blue-600 text-white hover:bg-blue-700"
                         }`}
                       >
-                        {product.stock > 0
-                          ? `${product.stock} stok`
-                          : "Stok yok"}
-                      </span>
+                        {product.stock === 0 ? "Stok Yok" : "Sepete Ekle"}
+                      </button>
                     </div>
-
-                    <button
-                      onClick={() => addToCart(product)}
-                      disabled={product.stock === 0}
-                      className={`w-full py-2 px-4 rounded-md font-medium ${
-                        product.stock === 0
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-blue-600 text-white hover:bg-blue-700"
-                      }`}
-                    >
-                      {product.stock === 0 ? "Stok Yok" : "Sepete Ekle"}
-                    </button>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Shopping Cart */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Sepetim ({cart.length} ürün)
-            </h2>
-
-            {cart.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">Sepetiniz boş</p>
-            ) : (
-              <>
-                <div className="space-y-4 mb-6">
-                  {cart.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between"
-                    >
-                      <div className="flex-1">
-                        <h4 className="text-sm font-medium text-gray-900">
-                          {item.name}
-                        </h4>
-                        <p className="text-sm text-gray-500">
-                          ₺{item.price.toFixed(2)} x {item.quantity}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
-                          }
-                          className="text-gray-500 hover:text-gray-700"
-                        >
-                          -
-                        </button>
-                        <span className="w-8 text-center">{item.quantity}</span>
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
-                          }
-                          className="text-gray-500 hover:text-gray-700"
-                        >
-                          +
-                        </button>
-                        <button
-                          onClick={() => removeFromCart(item.id)}
-                          className="text-red-500 hover:text-red-700 ml-2"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Price Summary */}
-                <div className="border-t pt-4 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Ara Toplam:</span>
-                    <span>₺{pricing.subtotal.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Kargo:</span>
-                    <span>₺{pricing.shipping.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>KDV:</span>
-                    <span>₺{pricing.tax.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between font-bold text-lg border-t pt-2">
-                    <span>Toplam:</span>
-                    <span>₺{pricing.total.toFixed(2)}</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setShowCheckout(true)}
-                  className="w-full mt-6 bg-green-600 text-white py-3 px-4 rounded-md font-medium hover:bg-green-700"
-                >
-                  Siparişi Tamamla
-                </button>
-              </>
+                ))}
+              </div>
             )}
           </div>
-        </div>
-      </div>
 
-      {/* Checkout Modal */}
-      {showCheckout && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Sipariş Bilgileri
+          {/* Shopping Cart */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                Sepetim ({cart.length} ürün)
               </h2>
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Ad Soyad *
-                    </label>
-                    <input
-                      type="text"
-                      value={customerInfo.name}
-                      onChange={(e) =>
-                        setCustomerInfo({
-                          ...customerInfo,
-                          name: e.target.value,
-                        })
-                      }
-                      className="w-full border border-gray-300 rounded-md px-3 py-2"
-                      required
-                    />
+              {cart.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">Sepetiniz boş</p>
+              ) : (
+                <>
+                  <div className="space-y-4 mb-6">
+                    {cart.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between"
+                      >
+                        <div className="flex-1">
+                          <h4 className="text-sm font-medium text-gray-900">
+                            {item.name}
+                          </h4>
+                          <p className="text-sm text-gray-500">
+                            ₺{item.price.toFixed(2)} x {item.quantity}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() =>
+                              updateQuantity(item.id, item.quantity - 1)
+                            }
+                            className="text-gray-500 hover:text-gray-700"
+                          >
+                            -
+                          </button>
+                          <span className="w-8 text-center">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() =>
+                              updateQuantity(item.id, item.quantity + 1)
+                            }
+                            className="text-gray-500 hover:text-gray-700"
+                          >
+                            +
+                          </button>
+                          <button
+                            onClick={() => removeFromCart(item.id)}
+                            className="text-red-500 hover:text-red-700 ml-2"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Price Summary */}
+                  <div className="border-t pt-4 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Ara Toplam:</span>
+                      <span>₺{pricing.subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Kargo:</span>
+                      <span>₺{pricing.shipping.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>KDV:</span>
+                      <span>₺{pricing.tax.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-lg border-t pt-2">
+                      <span>Toplam:</span>
+                      <span>₺{pricing.total.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setShowCheckout(true)}
+                    className="w-full mt-6 bg-green-600 text-white py-3 px-4 rounded-md font-medium hover:bg-green-700"
+                  >
+                    Siparişi Tamamla
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Checkout Modal */}
+        {showCheckout && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
+              <div className="p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                  Sipariş Bilgileri
+                </h2>
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Ad Soyad *
+                      </label>
+                      <input
+                        type="text"
+                        value={customerInfo.name}
+                        onChange={(e) =>
+                          setCustomerInfo({
+                            ...customerInfo,
+                            name: e.target.value,
+                          })
+                        }
+                        className="w-full border border-gray-300 rounded-md px-3 py-2"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        E-posta *
+                      </label>
+                      <input
+                        type="email"
+                        value={customerInfo.email}
+                        onChange={(e) =>
+                          setCustomerInfo({
+                            ...customerInfo,
+                            email: e.target.value,
+                          })
+                        }
+                        className="w-full border border-gray-300 rounded-md px-3 py-2"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Telefon *
+                      </label>
+                      <input
+                        type="tel"
+                        value={customerInfo.phone}
+                        onChange={(e) =>
+                          setCustomerInfo({
+                            ...customerInfo,
+                            phone: e.target.value,
+                          })
+                        }
+                        className="w-full border border-gray-300 rounded-md px-3 py-2"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Şehir *
+                      </label>
+                      <input
+                        type="text"
+                        value={customerInfo.address.city}
+                        onChange={(e) =>
+                          setCustomerInfo({
+                            ...customerInfo,
+                            address: {
+                              ...customerInfo.address,
+                              city: e.target.value,
+                            },
+                          })
+                        }
+                        className="w-full border border-gray-300 rounded-md px-3 py-2"
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      E-posta *
+                      Adres *
                     </label>
-                    <input
-                      type="email"
-                      value={customerInfo.email}
-                      onChange={(e) =>
-                        setCustomerInfo({
-                          ...customerInfo,
-                          email: e.target.value,
-                        })
-                      }
-                      className="w-full border border-gray-300 rounded-md px-3 py-2"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Telefon *
-                    </label>
-                    <input
-                      type="tel"
-                      value={customerInfo.phone}
-                      onChange={(e) =>
-                        setCustomerInfo({
-                          ...customerInfo,
-                          phone: e.target.value,
-                        })
-                      }
-                      className="w-full border border-gray-300 rounded-md px-3 py-2"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Şehir *
-                    </label>
-                    <input
-                      type="text"
-                      value={customerInfo.address.city}
+                    <textarea
+                      value={customerInfo.address.street}
                       onChange={(e) =>
                         setCustomerInfo({
                           ...customerInfo,
                           address: {
                             ...customerInfo.address,
-                            city: e.target.value,
+                            street: e.target.value,
                           },
                         })
                       }
                       className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      rows={3}
                       required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Posta Kodu
+                    </label>
+                    <input
+                      type="text"
+                      value={customerInfo.address.postalCode}
+                      onChange={(e) =>
+                        setCustomerInfo({
+                          ...customerInfo,
+                          address: {
+                            ...customerInfo.address,
+                            postalCode: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Adres *
-                  </label>
-                  <textarea
-                    value={customerInfo.address.street}
-                    onChange={(e) =>
-                      setCustomerInfo({
-                        ...customerInfo,
-                        address: {
-                          ...customerInfo.address,
-                          street: e.target.value,
-                        },
-                      })
-                    }
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    rows={3}
-                    required
-                  />
+                <div className="mt-6 flex justify-end space-x-3">
+                  <button
+                    onClick={() => setShowCheckout(false)}
+                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                  >
+                    İptal
+                  </button>
+                  <button
+                    onClick={handleCheckout}
+                    className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                  >
+                    Siparişi Onayla (₺{pricing.total.toFixed(2)})
+                  </button>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Posta Kodu
-                  </label>
-                  <input
-                    type="text"
-                    value={customerInfo.address.postalCode}
-                    onChange={(e) =>
-                      setCustomerInfo({
-                        ...customerInfo,
-                        address: {
-                          ...customerInfo.address,
-                          postalCode: e.target.value,
-                        },
-                      })
-                    }
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-6 flex justify-end space-x-3">
-                <button
-                  onClick={() => setShowCheckout(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                >
-                  İptal
-                </button>
-                <button
-                  onClick={handleCheckout}
-                  className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                >
-                  Siparişi Onayla (₺{pricing.total.toFixed(2)})
-                </button>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

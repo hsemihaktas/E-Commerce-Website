@@ -9,12 +9,19 @@ import {
   PAYMENT_STATUS_LABELS,
 } from "../../types/order";
 import Link from "next/link";
+import AlertModal from "../../components/ui/AlertModal";
 
 export default function OrdersPage() {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    type: "success" as "success" | "error",
+    title: "",
+    message: "",
+  });
 
   useEffect(() => {
     if (user?.email) {
@@ -38,6 +45,34 @@ export default function OrdersPage() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCancelOrder = async (orderId: string) => {
+    if (
+      window.confirm(
+        "Bu siparişi iptal etmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
+      )
+    ) {
+      try {
+        const { cancelOrder } = await import("../../services/orderService");
+        await cancelOrder(orderId);
+        await loadOrders(); // Siparişleri yeniden yükle
+        setAlertConfig({
+          type: "success",
+          title: "Başarılı",
+          message: "Siparişiniz başarıyla iptal edildi!",
+        });
+        setShowAlertModal(true);
+      } catch (error: any) {
+        console.error("Sipariş iptal hatası:", error);
+        setAlertConfig({
+          type: "error",
+          title: "Hata",
+          message: `Sipariş iptal edilirken hata: ${error.message}`,
+        });
+        setShowAlertModal(true);
+      }
     }
   };
 
@@ -275,7 +310,10 @@ export default function OrdersPage() {
                     </button>
 
                     {order.status === "pending" && (
-                      <button className="text-red-600 hover:text-red-700 font-medium text-sm">
+                      <button
+                        onClick={() => handleCancelOrder(order.id!)}
+                        className="text-red-600 hover:text-red-700 font-medium text-sm hover:underline"
+                      >
                         Siparişi İptal Et
                       </button>
                     )}
@@ -388,6 +426,15 @@ export default function OrdersPage() {
             </div>
           </div>
         )}
+
+        {/* Alert Modal */}
+        <AlertModal
+          isOpen={showAlertModal}
+          onClose={() => setShowAlertModal(false)}
+          type={alertConfig.type}
+          title={alertConfig.title}
+          message={alertConfig.message}
+        />
       </div>
     </div>
   );

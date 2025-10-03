@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { db } from "../../firebaseConfig";
 import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import { useAuth } from "../../contexts/AuthContext";
+import { getStoreSettings } from "../../services/storeService";
 
 interface Product {
   id?: string;
@@ -12,6 +13,8 @@ interface Product {
   price: number;
   category: string;
   stock: number;
+  storeId?: string;
+  storeName?: string;
 }
 
 interface ProductModalProps {
@@ -59,17 +62,28 @@ export default function ProductModal({
     setIsLoading(true);
 
     try {
+      // Mağaza ayarlarını al ve kontrol et
+      const storeSettings = await getStoreSettings(user!.uid);
+
+      if (
+        !storeSettings ||
+        !storeSettings.storeName ||
+        !storeSettings.description
+      ) {
+        alert("Önce mağaza ayarlarını tamamlamanız gerekmektedir!");
+        return;
+      }
+
       const productData = {
         name: productName,
         description: productDescription,
         price: parseFloat(productPrice),
         category: productCategory,
         stock: parseInt(productStock) || 0,
-        userId: user?.uid,
-        userEmail: user?.email,
+        storeId: user?.uid, // Mağaza ID'si (storeSettings document ID'si ile aynı)
+        storeName: storeSettings.storeName,
         updatedAt: new Date(),
       };
-
       if (isEdit && product?.id) {
         // Ürünü güncelle
         const productRef = doc(db, "products", product.id);

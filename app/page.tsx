@@ -1,17 +1,46 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LoginForm from "../components/LoginRegister/LoginForm";
 import RegisterForm from "../components/LoginRegister/RegisterForm";
 import Modal from "../components/LoginRegister/Modal";
 import { useAuth } from "../contexts/AuthContext";
+import { getStoreSettings } from "../services/storeService";
 
 export default function Home() {
   const [tab, setTab] = useState("login");
   const [modalMessage, setModalMessage] = useState("");
   const { user, loading } = useAuth();
+  const [hasStore, setHasStore] = useState(false);
+  const [storeLoading, setStoreLoading] = useState(false);
+
+  useEffect(() => {
+    if (user?.uid) {
+      checkUserStore();
+    } else {
+      setHasStore(false);
+      setStoreLoading(false);
+    }
+  }, [user?.uid]);
+
+  const checkUserStore = async () => {
+    try {
+      setStoreLoading(true);
+      const settings = await getStoreSettings(user!.uid);
+
+      // Mağaza ayarları varsa ve geçerli bilgiler doldurulmuşsa true
+      const isStoreComplete =
+        settings && settings.storeName && settings.description;
+
+      setHasStore(!!isStoreComplete);
+    } catch (error) {
+      console.error("Mağaza kontrolü hatası:", error);
+      setHasStore(false);
+    } finally {
+      setStoreLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -178,12 +207,25 @@ export default function Home() {
                 </div>
 
                 <div className="space-y-3">
-                  <Link
-                    href="/dashboard"
-                    className="block w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-                  >
-                    Dashboard'a Git
-                  </Link>
+                  {storeLoading ? (
+                    <div className="text-gray-600 py-3">
+                      Mağaza kontrol ediliyor...
+                    </div>
+                  ) : hasStore ? (
+                    <Link
+                      href="/dashboard"
+                      className="block w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                    >
+                      Dashboard'a Git
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/dashboard/settings"
+                      className="block w-full bg-orange-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-orange-700 transition-colors"
+                    >
+                      Mağaza Kur
+                    </Link>
+                  )}
                   <Link
                     href="/store"
                     className="block w-full bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 transition-colors"

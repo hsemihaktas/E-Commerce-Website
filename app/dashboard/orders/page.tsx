@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../../../contexts/AuthContext";
+import { getStoreSettings } from "../../../services/storeService";
 import ProtectedRoute from "../../../components/ProtectedRoute";
 import DashboardLayout from "../../../components/dashboard/DashboardLayout";
 import {
@@ -15,18 +17,43 @@ import {
   updatePaymentStatus,
   cancelOrder,
 } from "../../../services/orderService";
+import ConfirmModal from "../../../components/dashboard/ConfirmModal";
+import AlertModal from "../../../components/ui/AlertModal";
 
 export default function OrdersPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | Order["status"]>("all");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    type: "success" as "success" | "error",
+    title: "",
+    message: "",
+  });
+  const [orderToCancel, setOrderToCancel] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (user?.uid) {
-      loadOrders();
+      checkStoreAndLoadOrders();
     }
   }, [user?.uid]);
+
+  const checkStoreAndLoadOrders = async () => {
+    try {
+      const settings = await getStoreSettings(user!.uid);
+      if (!settings || !settings.storeName || !settings.description) {
+        router.push("/dashboard/settings");
+        return;
+      }
+      loadOrders();
+    } catch (error) {
+      router.push("/dashboard/settings");
+    }
+  };
 
   const loadOrders = async () => {
     try {
@@ -64,18 +91,36 @@ export default function OrdersPage() {
     }
   };
 
-  const handleCancelOrder = async (orderId: string) => {
-    if (
-      window.confirm(
-        "Bu siparişi iptal etmek istediğinizden emin misiniz? Stoklar geri yüklenecektir."
-      )
-    ) {
-      try {
-        await cancelOrder(orderId);
-        await loadOrders();
-      } catch (error: any) {
-        console.error("Sipariş iptal hatası:", error);
-      }
+  const handleCancelOrder = (orderId: string) => {
+    setOrderToCancel(orderId);
+    setShowConfirmModal(true);
+  };
+
+  const confirmCancelOrder = async () => {
+    if (!orderToCancel) return;
+
+    setIsLoading(true);
+    try {
+      await cancelOrder(orderToCancel);
+      await loadOrders();
+      setShowConfirmModal(false);
+      setAlertConfig({
+        type: "success",
+        title: "Başarılı",
+        message: "Sipariş başarıyla iptal edildi!",
+      });
+      setShowAlertModal(true);
+    } catch (error: any) {
+      setShowConfirmModal(false);
+      setAlertConfig({
+        type: "error",
+        title: "Hata",
+        message: `Sipariş iptal edilirken hata: ${error.message}`,
+      });
+      setShowAlertModal(true);
+    } finally {
+      setIsLoading(false);
+      setOrderToCancel(null);
     }
   };
 
@@ -503,6 +548,30 @@ export default function OrdersPage() {
           )}
         </div>
       </DashboardLayout>
+
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => {
+          setShowConfirmModal(false);
+          setOrderToCancel(null);
+        }}
+        onConfirm={confirmCancelOrder}
+        title="Siparişi İptal Et"
+        message="Bu siparişi iptal etmek istediğinizden emin misiniz? Stoklar geri yüklenecektir."
+        confirmText="Evet, İptal Et"
+        cancelText="Hayır"
+        isLoading={isLoading}
+      />
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={showAlertModal}
+        onClose={() => setShowAlertModal(false)}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+      />
     </ProtectedRoute>
   );
 }

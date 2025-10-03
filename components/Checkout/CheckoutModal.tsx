@@ -5,6 +5,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartContext";
 import { createOrder } from "../../services/orderService";
 import { Customer } from "../../types/order";
+import AlertModal from "../ui/AlertModal";
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -20,6 +21,12 @@ export default function CheckoutModal({
   const { user } = useAuth();
   const { cartItems, getCartTotal, clearCart } = useCart();
   const [loading, setLoading] = useState(false);
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    type: "success" as "success" | "error",
+    title: "",
+    message: "",
+  });
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -45,7 +52,12 @@ export default function CheckoutModal({
     e.preventDefault();
 
     if (!user?.email || cartItems.length === 0) {
-      alert("Giriş yapmanız ve sepetinizde ürün bulunması gerekiyor!");
+      setAlertConfig({
+        type: "error",
+        title: "Hata",
+        message: "Giriş yapmanız ve sepetinizde ürün bulunması gerekiyor!",
+      });
+      setShowAlertModal(true);
       return;
     }
 
@@ -60,7 +72,12 @@ export default function CheckoutModal({
     ];
     for (const field of requiredFields) {
       if (!formData[field as keyof typeof formData]) {
-        alert(`${field} alanı zorunludur!`);
+        setAlertConfig({
+          type: "error",
+          title: "Eksik Bilgi",
+          message: `${field} alanı zorunludur!`,
+        });
+        setShowAlertModal(true);
         return;
       }
     }
@@ -83,8 +100,20 @@ export default function CheckoutModal({
 
       // Sipariş öğeleri
       // Ürünleri satıcıya göre grupla
+      console.log(
+        "🛒 Cart items before grouping:",
+        cartItems.map((item) => ({
+          id: item.id,
+          name: item.name,
+          storeId: item.storeId,
+          userId: item.userId,
+        }))
+      );
+
       const ordersByStore = cartItems.reduce((groups, item) => {
-        const storeId = item.userId || "default-store";
+        const storeId = item.storeId || item.userId || "default-store";
+        console.log(`📦 Grouping item ${item.name} to store: ${storeId}`);
+
         if (!groups[storeId]) {
           groups[storeId] = [];
         }
@@ -143,7 +172,12 @@ export default function CheckoutModal({
         errorMessage = error.message;
       }
 
-      alert(errorMessage);
+      setAlertConfig({
+        type: "error",
+        title: "Hata",
+        message: errorMessage,
+      });
+      setShowAlertModal(true);
     } finally {
       setLoading(false);
     }
@@ -330,6 +364,15 @@ export default function CheckoutModal({
           </form>
         </div>
       </div>
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={showAlertModal}
+        onClose={() => setShowAlertModal(false)}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+      />
     </div>
   );
 }

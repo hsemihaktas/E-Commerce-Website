@@ -22,7 +22,8 @@ interface Product {
   category: string;
   stock: number;
   createdAt: any;
-  userId: string;
+  storeId: string;
+  storeName?: string;
 }
 
 export default function ProductList() {
@@ -40,7 +41,7 @@ export default function ProductList() {
 
     const q = query(
       collection(db, "products"),
-      where("userId", "==", user.uid)
+      where("storeId", "==", user.uid)
     );
 
     const unsubscribe = onSnapshot(

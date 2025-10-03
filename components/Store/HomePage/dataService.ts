@@ -2,7 +2,12 @@ import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "../../../firebaseConfig";
 import { Product } from "./types";
 
-export const loadAllProducts = async () => {
+interface LoadProductsResult {
+  products: Product[];
+  allStores: Map<string, any>;
+}
+
+export const loadAllProducts = async (): Promise<LoadProductsResult> => {
   try {
     console.log("🔍 Ürünler yükleniyor...");
 
@@ -39,8 +44,9 @@ export const loadAllProducts = async () => {
     );
     console.log("📦 Stokta olan ürünler:", stockedProducts.length);
 
-    // Kullanıcı bilgilerini ekle (users collection'ını kontrol et)
+    // Kullanıcı ve mağaza bilgilerini ekle
     try {
+      // Users collection'ını yükle
       const usersQuery = query(collection(db, "users"));
       const usersSnapshot = await getDocs(usersQuery);
       console.log("👥 Users collection size:", usersSnapshot.size);
@@ -50,15 +56,45 @@ export const loadAllProducts = async () => {
         usersMap.set(doc.id, doc.data());
       });
 
-      // Ürünlere mağaza sahibi bilgilerini ekle
-      const productsWithStore = stockedProducts.map((product) => ({
-        ...product,
-        storeOwner: usersMap.get(product.userId) || {
-          email: "Mağaza Sahibi",
-        },
-      }));
+      // Store settings collection'ını yükle
+      const storeSettingsQuery = query(collection(db, "storeSettings"));
+      const storeSettingsSnapshot = await getDocs(storeSettingsQuery);
+      console.log(
+        "🏪 Store settings collection size:",
+        storeSettingsSnapshot.size
+      );
 
-      return productsWithStore;
+      const storeSettingsMap = new Map();
+      storeSettingsSnapshot.forEach((doc) => {
+        const data = doc.data();
+        // Hem doc.id hem de data.userId ile map'le (emin olmak için)
+        storeSettingsMap.set(doc.id, data);
+        if (data.userId && data.userId !== doc.id) {
+          storeSettingsMap.set(data.userId, data);
+        }
+      });
+
+      // Ürünlere mağaza sahibi bilgilerini ekle
+      const productsWithStore = stockedProducts.map((product) => {
+        // Öncelik storeId'ye, geriye dönük uyumluluk için userId fallback
+        const lookupId = product.storeId || product.userId;
+        const userInfo = usersMap.get(product.userId || lookupId);
+        const storeInfo = storeSettingsMap.get(lookupId);
+
+        return {
+          ...product,
+          storeId: lookupId || "unknown", // StoreId'yi normalize et, fallback değer
+          storeOwner: userInfo || { email: "Mağaza Sahibi" },
+          storeSettings: storeInfo
+            ? {
+                storeName: storeInfo.storeName,
+                description: storeInfo.description,
+              }
+            : null,
+        };
+      });
+
+      return { products: productsWithStore, allStores: storeSettingsMap };
     } catch (userError) {
       console.log("⚠️ Users collection bulunamadı, ürünleri yine de göster");
       // Users collection yoksa sadece ürünleri göster
@@ -67,7 +103,7 @@ export const loadAllProducts = async () => {
         storeOwner: { email: "Mağaza Sahibi" },
       }));
 
-      return productsWithStore;
+      return { products: productsWithStore, allStores: new Map() };
     }
   } catch (error) {
     console.error("❌ Ürünler yüklenirken hata:", error);
