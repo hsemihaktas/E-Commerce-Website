@@ -34,7 +34,7 @@ export default function OrdersPage() {
       const ordersData = await getStoreOrders(user!.uid);
       setOrders(ordersData);
     } catch (error) {
-      console.error("Siparişler yüklenirken hata:", error);
+      console.error("❌ Siparişler yüklenirken hata:", error);
     } finally {
       setLoading(false);
     }
@@ -49,7 +49,6 @@ export default function OrdersPage() {
       await loadOrders(); // Refresh the list
     } catch (error) {
       console.error("Durum güncelleme hatası:", error);
-      alert("Durum güncellenirken hata oluştu");
     }
   };
 
@@ -62,13 +61,12 @@ export default function OrdersPage() {
       await loadOrders();
     } catch (error) {
       console.error("Ödeme durumu güncelleme hatası:", error);
-      alert("Ödeme durumu güncellenirken hata oluştu");
     }
   };
 
   const handleCancelOrder = async (orderId: string) => {
     if (
-      confirm(
+      window.confirm(
         "Bu siparişi iptal etmek istediğinizden emin misiniz? Stoklar geri yüklenecektir."
       )
     ) {
@@ -77,7 +75,6 @@ export default function OrdersPage() {
         await loadOrders();
       } catch (error: any) {
         console.error("Sipariş iptal hatası:", error);
-        alert(error.message || "Sipariş iptal edilirken hata oluştu");
       }
     }
   };
@@ -140,12 +137,68 @@ export default function OrdersPage() {
     <ProtectedRoute>
       <DashboardLayout>
         <div className="space-y-6">
-          {/* Header */}
+          {/* Header & Stats */}
           <div className="border-b border-gray-200 pb-4">
-            <h1 className="text-2xl font-bold text-gray-900">Siparişler</h1>
-            <p className="mt-2 text-gray-600">
-              Müşteri siparişlerinizi buradan yönetebilirsiniz.
-            </p>
+            <div className="flex justify-between items-start">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Siparişler</h1>
+                <p className="mt-2 text-gray-600">
+                  Müşteri siparişlerinizi buradan yönetebilirsiniz.
+                </p>
+              </div>
+
+              {/* Earning Stats */}
+              <div className="grid grid-cols-2 gap-4 text-center">
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <p className="text-sm text-green-600 font-medium">
+                    Kazanılan Para
+                  </p>
+                  <p className="text-2xl font-bold text-green-700">
+                    ₺
+                    {orders
+                      .filter(
+                        (o) =>
+                          o.status === "delivered" && o.paymentStatus === "paid"
+                      )
+                      .reduce((sum, o) => sum + o.total, 0)
+                      .toFixed(2)}
+                  </p>
+                  <p className="text-xs text-green-500">
+                    {
+                      orders.filter(
+                        (o) =>
+                          o.status === "delivered" && o.paymentStatus === "paid"
+                      ).length
+                    }{" "}
+                    teslim edildi
+                  </p>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <p className="text-sm text-blue-600 font-medium">
+                    Bekleyen Kazanç
+                  </p>
+                  <p className="text-2xl font-bold text-blue-700">
+                    ₺
+                    {orders
+                      .filter(
+                        (o) =>
+                          o.status !== "delivered" && o.status !== "cancelled"
+                      )
+                      .reduce((sum, o) => sum + o.total, 0)
+                      .toFixed(2)}
+                  </p>
+                  <p className="text-xs text-blue-500">
+                    {
+                      orders.filter(
+                        (o) =>
+                          o.status !== "delivered" && o.status !== "cancelled"
+                      ).length
+                    }{" "}
+                    sipariş işlemde
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Filter Tabs */}
@@ -264,36 +317,131 @@ export default function OrdersPage() {
                       <div className="mt-2 sm:flex sm:justify-between">
                         <div className="sm:flex">
                           <p className="flex items-center text-sm text-gray-500">
-                            <span className="mr-2">
+                            <span className="mr-2 font-semibold text-gray-900">
                               ₺{order.total.toFixed(2)}
                             </span>
                             <span className="mr-4">•</span>
                             <span>{order.items.length} ürün</span>
+                            <span className="mr-4">•</span>
+                            <span className="text-xs">
+                              {order.paymentMethod === "cash"
+                                ? "💵 Nakit"
+                                : order.paymentMethod === "card"
+                                ? "💳 Kart"
+                                : order.paymentMethod === "transfer"
+                                ? "🏦 Havale"
+                                : order.paymentMethod === "online"
+                                ? "🌐 Online"
+                                : "💰"}
+                            </span>
                           </p>
                         </div>
                         <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                          <span>{formatDate(order.createdAt)}</span>
+                          <span>📅 {formatDate(order.createdAt)}</span>
                         </div>
                       </div>
 
-                      {/* Order Items */}
-                      <div className="mt-3">
+                      {/* Order Details */}
+                      <div className="mt-3 grid md:grid-cols-2 gap-4">
                         <div className="text-sm text-gray-600">
                           <strong>Ürünler:</strong>
-                          {order.items.map((item, index) => (
-                            <span key={index}>
-                              {index > 0 && ", "}
-                              {item.productName} ({item.quantity}x)
-                            </span>
-                          ))}
+                          <div className="mt-1">
+                            {order.items.map((item, index) => (
+                              <div key={index} className="flex justify-between">
+                                <span>
+                                  {item.productName} ({item.quantity}x)
+                                </span>
+                                <span className="font-medium">
+                                  ₺{item.totalPrice.toFixed(2)}
+                                </span>
+                              </div>
+                            ))}
+                            <div className="border-t pt-1 mt-1 flex justify-between font-semibold">
+                              <span>Toplam:</span>
+                              <span>₺{order.total.toFixed(2)}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="text-sm text-gray-600">
+                          <strong>Teslimat Adresi:</strong>
+                          <div className="mt-1">
+                            <p>{order.customer.address.street}</p>
+                            <p>
+                              {order.customer.address.city}{" "}
+                              {order.customer.address.postalCode}
+                            </p>
+                            <p>{order.customer.address.country}</p>
+                            <p className="mt-1 text-blue-600">
+                              📞 {order.customer.phone}
+                            </p>
+                          </div>
                         </div>
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="mt-4 flex space-x-2">
+                      <div className="mt-4 flex flex-wrap items-center gap-2">
                         {order.status !== "cancelled" &&
                           order.status !== "delivered" && (
                             <>
+                              {/* Quick Action Buttons */}
+                              {order.status === "pending" && (
+                                <button
+                                  onClick={() =>
+                                    handleStatusUpdate(order.id!, "confirmed")
+                                  }
+                                  className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200 font-medium"
+                                >
+                                  ✓ Onayla
+                                </button>
+                              )}
+
+                              {order.status === "confirmed" && (
+                                <button
+                                  onClick={() =>
+                                    handleStatusUpdate(order.id!, "preparing")
+                                  }
+                                  className="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded hover:bg-purple-200 font-medium"
+                                >
+                                  🍽️ Hazırlamaya Başla
+                                </button>
+                              )}
+
+                              {order.status === "preparing" && (
+                                <button
+                                  onClick={() =>
+                                    handleStatusUpdate(order.id!, "shipped")
+                                  }
+                                  className="text-sm bg-indigo-100 text-indigo-700 px-3 py-1 rounded hover:bg-indigo-200 font-medium"
+                                >
+                                  📦 Kargoya Ver
+                                </button>
+                              )}
+
+                              {order.status === "shipped" && (
+                                <button
+                                  onClick={() =>
+                                    handleStatusUpdate(order.id!, "delivered")
+                                  }
+                                  className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded hover:bg-green-200 font-medium"
+                                >
+                                  🚚 Teslim Edildi
+                                </button>
+                              )}
+
+                              {/* Payment Status */}
+                              {order.paymentStatus === "pending" && (
+                                <button
+                                  onClick={() =>
+                                    handlePaymentStatusUpdate(order.id!, "paid")
+                                  }
+                                  className="text-sm bg-emerald-100 text-emerald-700 px-3 py-1 rounded hover:bg-emerald-200 font-medium"
+                                >
+                                  💰 Ödeme Alındı
+                                </button>
+                              )}
+
+                              {/* Detailed Selects for fine control */}
                               <select
                                 value={order.status}
                                 onChange={(e) =>
@@ -302,7 +450,7 @@ export default function OrdersPage() {
                                     e.target.value as Order["status"]
                                   )
                                 }
-                                className="text-sm border border-gray-300 rounded px-2 py-1"
+                                className="text-sm border border-gray-300 rounded px-2 py-1 bg-white"
                               >
                                 <option value="pending">Beklemede</option>
                                 <option value="confirmed">Onaylandı</option>
@@ -319,7 +467,7 @@ export default function OrdersPage() {
                                     e.target.value as Order["paymentStatus"]
                                   )
                                 }
-                                className="text-sm border border-gray-300 rounded px-2 py-1"
+                                className="text-sm border border-gray-300 rounded px-2 py-1 bg-white"
                               >
                                 <option value="pending">Ödeme Bekliyor</option>
                                 <option value="paid">Ödendi</option>
@@ -329,11 +477,22 @@ export default function OrdersPage() {
 
                               <button
                                 onClick={() => handleCancelOrder(order.id!)}
-                                className="text-sm bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200"
+                                className="text-sm bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200 font-medium"
                               >
-                                İptal Et
+                                ❌ İptal Et
                               </button>
                             </>
+                          )}
+
+                        {/* Delivered Order Info */}
+                        {order.status === "delivered" &&
+                          order.paymentStatus === "paid" && (
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded font-medium">
+                                ✅ Tamamlandı - Kazanç: ₺
+                                {order.total.toFixed(2)}
+                              </span>
+                            </div>
                           )}
                       </div>
                     </div>

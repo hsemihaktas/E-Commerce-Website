@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "../../contexts/CartContext";
+import CheckoutModal from "../../components/Checkout/CheckoutModal";
 
 export default function CartPage() {
   const {
@@ -12,6 +14,8 @@ export default function CartPage() {
     clearCart,
     getCartItemsCount,
   } = useCart();
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -228,7 +232,10 @@ export default function CartPage() {
                   </div>
                 )}
 
-                <button className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors mb-3">
+                <button
+                  onClick={() => setShowCheckout(true)}
+                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors mb-3"
+                >
                   Siparişi Tamamla
                 </button>
 
@@ -238,6 +245,61 @@ export default function CartPage() {
                 >
                   Alışverişe Devam Et
                 </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Checkout Modal */}
+        <CheckoutModal
+          isOpen={showCheckout}
+          onClose={() => setShowCheckout(false)}
+          onSuccess={() => {
+            setOrderSuccess(true);
+            setShowCheckout(false);
+          }}
+        />
+
+        {/* Success Message */}
+        {orderSuccess && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg
+                  className="w-8 h-8 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Sipariş Başarılı!
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Siparişiniz başarıyla oluşturuldu. En kısa sürede hazırlığa
+                alınacaktır.
+              </p>
+              <div className="space-y-3">
+                <Link
+                  href="/orders"
+                  className="block w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+                  onClick={() => setOrderSuccess(false)}
+                >
+                  Siparişlerimi Görüntüle
+                </Link>
+                <button
+                  onClick={() => setOrderSuccess(false)}
+                  className="block w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-50 transition-colors"
+                >
+                  Kapat
+                </button>
               </div>
             </div>
           </div>

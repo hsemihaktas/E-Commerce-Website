@@ -8,6 +8,7 @@ export interface CartItem {
   price: number;
   quantity: number;
   stock: number;
+  userId?: string; // Ürünün sahibi/satıcısı
 }
 
 interface CartContextType {
@@ -17,6 +18,7 @@ interface CartContextType {
     name: string;
     price: number;
     stock: number;
+    userId?: string;
   }) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
@@ -35,6 +37,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     name: string;
     price: number;
     stock: number;
+    userId?: string;
   }) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === product.id);

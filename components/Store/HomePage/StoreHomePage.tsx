@@ -27,6 +27,7 @@ export default function StoreHomePage() {
       name: product.name,
       price: product.price,
       stock: product.stock,
+      userId: product.userId, // Ürünün sahibi/satıcısı
     });
     setMessage(`"${product.name}" sepete eklendi!`);
     setTimeout(() => setMessage(""), 3000);

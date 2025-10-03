@@ -106,6 +106,15 @@ export default function Navbar() {
             {user ? (
               <div className="flex items-center space-x-2">
                 <Link
+                  href="/orders"
+                  className={`text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    pathname === "/orders" ? "text-blue-600 bg-blue-50" : ""
+                  }`}
+                  title="Siparişlerim"
+                >
+                  📦 Siparişlerim
+                </Link>
+                <Link
                   href="/dashboard"
                   className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
                 >
@@ -207,6 +216,19 @@ export default function Navbar() {
               >
                 Sepetim
               </Link>
+              {user && (
+                <Link
+                  href="/orders"
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    pathname === "/orders"
+                      ? "text-blue-600 bg-blue-50"
+                      : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  📦 Siparişlerim
+                </Link>
+              )}
               <div className="pt-2 space-y-2">
                 {user ? (
                   <>
