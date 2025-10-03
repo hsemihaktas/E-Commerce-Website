@@ -1,6 +1,5 @@
 // Component exports
 export { default as StoreHomePage } from "./StoreHomePage";
-export { default as StoreHeader } from "./StoreHeader";
 export { default as ViewToggle } from "./ViewToggle";
 export { default as ProductFilters } from "./ProductFilters";
 export { default as ProductCard } from "./ProductCard";

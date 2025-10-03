@@ -107,3 +107,66 @@ export const checkStoreNameAvailability = async (
     return false;
   }
 };
+
+// Yeni mağaza oluştur
+export const createStore = async (
+  userId: string,
+  storeData: {
+    storeName: string;
+    description: string;
+    category: string;
+    phone?: string;
+    address?: string;
+    city?: string;
+  }
+): Promise<void> => {
+  try {
+    // Mağaza isminin kullanılabilir olup olmadığını kontrol et
+    const isAvailable = await checkStoreNameAvailability(
+      storeData.storeName,
+      userId
+    );
+    if (!isAvailable) {
+      throw new Error(
+        "Bu mağaza ismi zaten kullanılıyor. Lütfen farklı bir isim seçin."
+      );
+    }
+
+    const settingsRef = doc(db, "storeSettings", userId);
+
+    const newStoreData: StoreSettings = {
+      id: userId,
+      userId,
+      storeName: storeData.storeName,
+      description: storeData.description,
+      contactInfo: {
+        email: "",
+        phone: storeData.phone || "",
+        address: storeData.address || "",
+        city: storeData.city || "",
+        website: "",
+      },
+      businessInfo: {
+        businessType:
+          storeData.category === "elektronik"
+            ? "Bireysel Satıcı"
+            : "Bireysel Satıcı",
+        taxNumber: "",
+        businessAddress: "",
+      },
+      socialMedia: {
+        instagram: "",
+        facebook: "",
+        twitter: "",
+      },
+      isActive: true,
+      createdAt: serverTimestamp() as any,
+      updatedAt: serverTimestamp() as any,
+    };
+
+    await setDoc(settingsRef, newStoreData);
+  } catch (error) {
+    console.error("Mağaza oluşturma hatası:", error);
+    throw error;
+  }
+};

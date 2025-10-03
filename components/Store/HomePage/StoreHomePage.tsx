@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useCart } from "../../../contexts/CartContext";
 import { Product, Store, ViewType } from "./types";
 import { loadAllProducts } from "./dataService";
-import StoreHeader from "./StoreHeader";
+import GlobalNavbar from "../../layout/GlobalNavbar";
 import ViewToggle from "./ViewToggle";
 import ProductFilters from "./ProductFilters";
 import ProductsGrid from "./ProductsGrid";
@@ -116,9 +116,13 @@ export default function StoreHomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <GlobalNavbar />
+      {message && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded fixed top-20 right-4 z-50">
+          {message}
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <StoreHeader message={message} />
-
         <ViewToggle
           view={view}
           setView={setView}

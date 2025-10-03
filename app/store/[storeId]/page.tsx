@@ -5,7 +5,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../../firebaseConfig";
 import { createOrder } from "../../../services/orderService";
 import { Customer, OrderItem } from "../../../types/order";
-import StoreHeader from "../../../components/Store/StoreHeader";
+import GlobalNavbar from "../../../components/layout/GlobalNavbar";
 
 interface Product {
   id: string;
@@ -210,8 +210,7 @@ export default function StorePage({
 
   return (
     <div>
-      {/* Store Header */}
-      <StoreHeader storeId={resolvedParams.storeId} />
+      <GlobalNavbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

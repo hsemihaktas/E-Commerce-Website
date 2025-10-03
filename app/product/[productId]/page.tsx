@@ -7,6 +7,7 @@ import { createOrder } from "../../../services/orderService";
 import { Customer, OrderItem } from "../../../types/order";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import GlobalNavbar from "../../../components/layout/GlobalNavbar";
 
 interface Product {
   id: string;
@@ -191,6 +192,7 @@ Siparişiniz en kısa sürede hazırlanacak ve size ulaştırılacaktır.`);
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <GlobalNavbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <nav className="flex mb-8" aria-label="Breadcrumb">

@@ -77,7 +77,7 @@ export default function LoginForm() {
             setModalMessage("");
             setShouldRedirect(false);
             if (shouldRedirect) {
-              router.push("/dashboard");
+              router.push("/");
             }
           }}
         />

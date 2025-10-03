@@ -46,12 +46,12 @@ export default function OrdersPage() {
     try {
       const settings = await getStoreSettings(user!.uid);
       if (!settings || !settings.storeName || !settings.description) {
-        router.push("/dashboard/settings");
+        router.push("/");
         return;
       }
       loadOrders();
     } catch (error) {
-      router.push("/dashboard/settings");
+      router.push("/");
     }
   };
 

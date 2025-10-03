@@ -28,16 +28,16 @@ export default function Dashboard() {
     try {
       const settings = await getStoreSettings(user!.uid);
 
-      // Eğer mağaza ayarları yoksa veya eksikse settings'e yönlendir
+      // Eğer mağaza ayarları yoksa veya eksikse anasayfaya yönlendir
       if (!settings || !settings.storeName || !settings.description) {
-        router.push("/dashboard/settings");
+        router.push("/");
         return;
       }
 
       setStoreSettings(settings);
     } catch (error) {
       console.error("Mağaza ayarları yüklenirken hata:", error);
-      router.push("/dashboard/settings");
+      router.push("/");
     }
   };
   return (

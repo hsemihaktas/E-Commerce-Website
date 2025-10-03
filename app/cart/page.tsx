@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "../../contexts/CartContext";
 import CheckoutModal from "../../components/Checkout/CheckoutModal";
+import GlobalNavbar from "../../components/layout/GlobalNavbar";
 
 export default function CartPage() {
   const {
@@ -19,6 +20,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <GlobalNavbar />
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
