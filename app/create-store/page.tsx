@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../../contexts/AuthContext";
-import { createStore, getStoreSettings } from "../../services/storeService";
+import { createStore, getStoreSettings, checkStoreNameAvailability } from "../../services/storeService";
 import AlertModal from "../../components/ui/AlertModal";
 import GlobalNavbar from "../../components/layout/GlobalNavbar";
 
@@ -70,7 +70,30 @@ export default function CreateStorePage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const validateForm = () => {
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    
+    // Sadece rakam, boşluk, tire ve parantez karakterlerine izin ver
+    value = value.replace(/[^0-9\s\-\(\)]/g, '');
+    
+    // Türkiye telefon formatına göre otomatik formatlama
+    if (value.length <= 11) {
+      if (value.startsWith('0')) {
+        // 0555 123 45 67 formatı
+        if (value.length > 4 && value.length <= 7) {
+          value = value.slice(0, 4) + ' ' + value.slice(4);
+        } else if (value.length > 7 && value.length <= 9) {
+          value = value.slice(0, 4) + ' ' + value.slice(4, 7) + ' ' + value.slice(7);
+        } else if (value.length > 9) {
+          value = value.slice(0, 4) + ' ' + value.slice(4, 7) + ' ' + value.slice(7, 9) + ' ' + value.slice(9);
+        }
+      }
+    }
+    
+    setFormData((prev) => ({ ...prev, phone: value }));
+  };
+
+  const validateForm = async () => {
     const required = [
       "storeName", "description", "category", "email", "phone", 
       "address", "city", "website", "businessType", "taxNumber", "businessAddress"
@@ -101,13 +124,73 @@ export default function CreateStorePage() {
         return false;
       }
     }
+
+    // Telefon numarası validasyonu
+    const phoneRegex = /^0[5-9]\d{2}\s?\d{3}\s?\d{2}\s?\d{2}$/;
+    const cleanPhone = formData.phone.replace(/\s/g, '');
+    if (!phoneRegex.test(cleanPhone)) {
+      setAlertConfig({
+        type: "error",
+        title: "Geçersiz Telefon",
+        message: "Geçerli bir Türkiye telefon numarası giriniz (örn: 0555 123 45 67)",
+      });
+      setShowAlertModal(true);
+      return false;
+    }
+
+    // E-posta validasyonu
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setAlertConfig({
+        type: "error",
+        title: "Geçersiz E-posta",
+        message: "Geçerli bir e-posta adresi giriniz",
+      });
+      setShowAlertModal(true);
+      return false;
+    }
+
+    // Website URL validasyonu
+    const urlRegex = /^https?:\/\/.+\..+/;
+    if (formData.website && !urlRegex.test(formData.website)) {
+      setAlertConfig({
+        type: "error",
+        title: "Geçersiz Website",
+        message: "Website adresi http:// veya https:// ile başlamalıdır",
+      });
+      setShowAlertModal(true);
+      return false;
+    }
+
+    // Mağaza isminin benzersizliğini kontrol et
+    try {
+      const isAvailable = await checkStoreNameAvailability(formData.storeName, user!.uid);
+      if (!isAvailable) {
+        setAlertConfig({
+          type: "error",
+          title: "Mağaza İsmi Kullanılıyor",
+          message: "Bu mağaza ismi zaten alınmış. Lütfen farklı bir isim seçin.",
+        });
+        setShowAlertModal(true);
+        return false;
+      }
+    } catch (error) {
+      setAlertConfig({
+        type: "error",
+        title: "Kontrol Hatası",
+        message: "Mağaza ismi kontrol edilirken hata oluştu. Lütfen tekrar deneyin.",
+      });
+      setShowAlertModal(true);
+      return false;
+    }
+
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
+    if (!(await validateForm())) return;
 
     setIsSubmitting(true);
 
@@ -315,9 +398,10 @@ export default function CreateStorePage() {
                     id="phone"
                     name="phone"
                     value={formData.phone}
-                    onChange={handleInputChange}
+                    onChange={handlePhoneChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     placeholder="0555 123 45 67"
+                    maxLength={13}
                     required
                   />
                 </div>

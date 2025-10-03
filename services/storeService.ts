@@ -8,6 +8,7 @@ import {
   where,
   getDocs,
   serverTimestamp,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { StoreSettings } from "../types/store";
@@ -173,5 +174,48 @@ export const createStore = async (
   } catch (error) {
     console.error("Mağaza oluşturma hatası:", error);
     throw error;
+  }
+};
+
+// Mağazayı ve ilgili tüm verileri sil
+export const deleteStore = async (userId: string): Promise<void> => {
+  try {
+    const batch = writeBatch(db);
+
+    // 1. Mağaza ayarlarını sil
+    const storeSettingsRef = doc(db, "storeSettings", userId);
+    batch.delete(storeSettingsRef);
+
+    // 2. Mağazanın ürünlerini sil
+    const productsQuery = query(
+      collection(db, "products"),
+      where("userId", "==", userId)
+    );
+    const productsSnapshot = await getDocs(productsQuery);
+
+    productsSnapshot.forEach((productDoc) => {
+      batch.delete(productDoc.ref);
+    });
+
+    // 3. Mağazanın siparişlerini sil
+    const ordersQuery = query(
+      collection(db, "orders"),
+      where("storeId", "==", userId)
+    );
+    const ordersSnapshot = await getDocs(ordersQuery);
+
+    ordersSnapshot.forEach((orderDoc) => {
+      batch.delete(orderDoc.ref);
+    });
+
+    // 4. Batch işlemini gerçekleştir
+    await batch.commit();
+
+    console.log("✅ Mağaza ve tüm ilgili veriler başarıyla silindi");
+  } catch (error) {
+    console.error("❌ Mağaza silme hatası:", error);
+    throw new Error(
+      "Mağaza silinirken bir hata oluştu. Lütfen tekrar deneyin."
+    );
   }
 };
