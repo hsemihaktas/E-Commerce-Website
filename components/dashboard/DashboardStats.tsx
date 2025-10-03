@@ -39,7 +39,7 @@ export default function DashboardStats() {
     // Products query
     const productsQuery = query(
       collection(db, "products"),
-      where("userId", "==", user.uid)
+      where("storeId", "==", user.uid)
     );
 
     // Orders query

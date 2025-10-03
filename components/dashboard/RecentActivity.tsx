@@ -32,7 +32,7 @@ export default function RecentActivity() {
 
     const q = query(
       collection(db, "products"),
-      where("userId", "==", user.uid),
+      where("storeId", "==", user.uid),
       limit(20) // Get more products to sort manually
     );
 

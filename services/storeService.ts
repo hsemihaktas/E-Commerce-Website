@@ -189,7 +189,7 @@ export const deleteStore = async (userId: string): Promise<void> => {
     // 2. Mağazanın ürünlerini sil
     const productsQuery = query(
       collection(db, "products"),
-      where("userId", "==", userId)
+      where("storeId", "==", userId)
     );
     const productsSnapshot = await getDocs(productsQuery);
 

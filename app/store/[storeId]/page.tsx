@@ -55,7 +55,7 @@ export default function StorePage({
       setLoading(true);
       const q = query(
         collection(db, "products"),
-        where("userId", "==", resolvedParams.storeId)
+        where("storeId", "==", resolvedParams.storeId)
       );
 
       const querySnapshot = await getDocs(q);

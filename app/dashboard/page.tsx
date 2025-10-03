@@ -168,36 +168,13 @@ export default function Dashboard() {
                     </p>
                   </div>
                 </a>
-                <div className="relative group bg-gray-50 p-6 border border-gray-200 rounded-lg opacity-50 cursor-not-allowed">
+
+                <a
+                  href="/dashboard/settings"
+                  className="relative group bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
+                >
                   <div>
-                    <span className="rounded-lg inline-flex p-3 bg-gray-200 text-gray-400">
-                      <svg
-                        className="h-6 w-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                        />
-                      </svg>
-                    </span>
-                  </div>
-                  <div className="mt-4">
-                    <h3 className="text-lg font-medium text-gray-500">
-                      Satış Raporları
-                    </h3>
-                    <p className="mt-2 text-sm text-gray-400">
-                      Satış verilerinizi analiz edin. (Yakında)
-                    </p>
-                  </div>
-                </div>{" "}
-                <div className="relative group bg-gray-50 p-6 border border-gray-200 rounded-lg opacity-50 cursor-not-allowed">
-                  <div>
-                    <span className="rounded-lg inline-flex p-3 bg-gray-200 text-gray-400">
+                    <span className="rounded-lg inline-flex p-3 bg-orange-50 text-orange-600 group-hover:bg-orange-100">
                       <svg
                         className="h-6 w-6"
                         fill="none"
@@ -220,14 +197,14 @@ export default function Dashboard() {
                     </span>
                   </div>
                   <div className="mt-4">
-                    <h3 className="text-lg font-medium text-gray-500">
+                    <h3 className="text-lg font-medium text-gray-900">
                       Ayarlar
                     </h3>
-                    <p className="mt-2 text-sm text-gray-400">
-                      Mağaza ayarlarınızı yönetin. (Yakında)
+                    <p className="mt-2 text-sm text-gray-500">
+                      Mağaza ayarlarınızı düzenleyin ve yönetin.
                     </p>
                   </div>
-                </div>
+                </a>
               </div>
             </div>
           </div>
