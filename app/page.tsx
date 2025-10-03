@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import LoginForm from "../components/LoginRegister/LoginForm";
 import RegisterForm from "../components/LoginRegister/RegisterForm";
 import Modal from "../components/LoginRegister/Modal";
@@ -11,13 +12,6 @@ export default function Home() {
   const [tab, setTab] = useState("login");
   const [modalMessage, setModalMessage] = useState("");
   const { user, loading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && user) {
-      router.push("/dashboard");
-    }
-  }, [user, loading, router]);
 
   if (loading) {
     return (
@@ -27,13 +21,9 @@ export default function Home() {
     );
   }
 
-  if (user) {
-    return null; // Yönlendirme yapılıyor
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
+      {/* Header - sadece giriş yapmamış kullanıcılar için göster */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
@@ -52,7 +42,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="flex items-center justify-center min-h-screen -mt-16">
+      <div className={`flex items-center justify-center min-h-screen`}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left Side - Info */}
@@ -159,40 +149,84 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Side - Auth Forms */}
-            <div className="max-w-md w-full mx-auto bg-white p-8 rounded-xl shadow-lg">
-              <div className="flex justify-center mb-6">
-                <button
-                  className={`flex-1 py-2 text-center font-medium text-sm border-b-2 transition-colors ${
-                    tab === "login"
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700"
-                  }`}
-                  onClick={() => setTab("login")}
-                >
-                  Giriş Yap
-                </button>
-                <button
-                  className={`flex-1 py-2 text-center font-medium text-sm border-b-2 transition-colors ${
-                    tab === "register"
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700"
-                  }`}
-                  onClick={() => setTab("register")}
-                >
-                  Kayıt Ol
-                </button>
-              </div>
+            {/* Right Side - Auth Forms veya Hoş Geldin Mesajı */}
+            {user ? (
+              /* Giriş yapmış kullanıcılar için hoş geldin kartı */
+              <div className="max-w-md w-full mx-auto bg-white p-8 rounded-xl shadow-lg text-center">
+                <div className="mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg
+                      className="w-8 h-8 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                    Hoş Geldiniz!
+                  </h2>
+                  <p className="text-gray-600">
+                    Platformumuza başarıyla giriş yaptınız.
+                  </p>
+                </div>
 
-              {tab === "login" && <LoginForm />}
-              {tab === "register" && (
-                <RegisterForm setModalMessage={setModalMessage} />
-              )}
-            </div>
+                <div className="space-y-3">
+                  <Link
+                    href="/dashboard"
+                    className="block w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                  >
+                    Dashboard'a Git
+                  </Link>
+                  <Link
+                    href="/store"
+                    className="block w-full bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 transition-colors"
+                  >
+                    Alışverişe Başla
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              /* Giriş yapmamış kullanıcılar için auth formları */
+              <div className="max-w-md w-full mx-auto bg-white p-8 rounded-xl shadow-lg">
+                <div className="flex justify-center mb-6">
+                  <button
+                    className={`flex-1 py-2 text-center font-medium text-sm border-b-2 transition-colors ${
+                      tab === "login"
+                        ? "border-blue-500 text-blue-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700"
+                    }`}
+                    onClick={() => setTab("login")}
+                  >
+                    Giriş Yap
+                  </button>
+                  <button
+                    className={`flex-1 py-2 text-center font-medium text-sm border-b-2 transition-colors ${
+                      tab === "register"
+                        ? "border-blue-500 text-blue-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700"
+                    }`}
+                    onClick={() => setTab("register")}
+                  >
+                    Kayıt Ol
+                  </button>
+                </div>
+
+                {tab === "login" && <LoginForm />}
+                {tab === "register" && (
+                  <RegisterForm setModalMessage={setModalMessage} />
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
-
       {modalMessage && (
         <Modal message={modalMessage} onClose={() => setModalMessage("")} />
       )}
