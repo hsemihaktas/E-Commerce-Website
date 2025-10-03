@@ -4,12 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
 import { logout } from "../firebaseConfig";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const { user } = useAuth();
+  const { getCartItemsCount } = useCart();
 
   const handleLogout = async () => {
     try {
@@ -92,10 +94,12 @@ export default function Navbar() {
                   d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6h9M7 13l-1.5 6m0 0h9m-9 0V19a2 2 0 002 2h5a2 2 0 002-2v-.5M16 19h2a2 2 0 002-2v-.5"
                 />
               </svg>
-              {/* Sepet Badge - Gelecekte sepet item sayısı için */}
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
-                0
-              </span>
+              {/* Sepet Badge */}
+              {getCartItemsCount() > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                  {getCartItemsCount()}
+                </span>
+              )}
             </Link>
 
             {/* Login/Dashboard Button */}

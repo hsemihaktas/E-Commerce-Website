@@ -1,66 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-  stock: number;
-}
+import { useCart } from "../../contexts/CartContext";
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    // Mock data - gerçek sepet sistemi için localStorage veya global state kullanılacak
-    {
-      id: "1",
-      name: "Örnek Ürün 1",
-      price: 99.99,
-      quantity: 2,
-      stock: 10,
-    },
-    {
-      id: "2",
-      name: "Örnek Ürün 2",
-      price: 149.99,
-      quantity: 1,
-      stock: 5,
-    },
-  ]);
-
-  const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity === 0) {
-      removeItem(id);
-      return;
-    }
-
-    setCartItems((items) =>
-      items.map((item) => {
-        if (item.id === id) {
-          return { ...item, quantity: Math.min(newQuantity, item.stock) };
-        }
-        return item;
-      })
-    );
-  };
-
-  const removeItem = (id: string) => {
-    setCartItems((items) => items.filter((item) => item.id !== id));
-  };
-
-  const getTotalPrice = () => {
-    return cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-    );
-  };
-
-  const getItemCount = () => {
-    return cartItems.reduce((total, item) => total + item.quantity, 0);
-  };
+  const {
+    cartItems,
+    updateQuantity,
+    removeFromCart,
+    getCartTotal,
+    clearCart,
+    getCartItemsCount,
+  } = useCart();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -69,7 +20,7 @@ export default function CartPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Sepetim</h1>
           <p className="text-gray-600">
-            {getItemCount()} ürün • Toplam: ₺{getTotalPrice().toFixed(2)}
+            {getCartItemsCount()} ürün • Toplam: ₺{getCartTotal().toFixed(2)}
           </p>
         </div>
 
@@ -113,28 +64,8 @@ export default function CartPage() {
                 >
                   <div className="flex items-center space-x-4">
                     {/* Product Image */}
-                    <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
-                      {item.image ? (
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-full h-full object-cover rounded-lg"
-                        />
-                      ) : (
-                        <svg
-                          className="w-8 h-8 text-gray-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                          />
-                        </svg>
-                      )}
+                    <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
+                      <span className="text-2xl">📦</span>
                     </div>
 
                     {/* Product Details */}
@@ -202,7 +133,7 @@ export default function CartPage() {
 
                     {/* Remove Button */}
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeFromCart(item.id)}
                       className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                       title="Ürünü kaldır"
                     >
@@ -245,17 +176,17 @@ export default function CartPage() {
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">
-                      Ara Toplam ({getItemCount()} ürün):
+                      Ara Toplam ({getCartItemsCount()} ürün):
                     </span>
                     <span className="font-medium">
-                      ₺{getTotalPrice().toFixed(2)}
+                      ₺{getCartTotal().toFixed(2)}
                     </span>
                   </div>
 
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Kargo:</span>
                     <span className="font-medium">
-                      {getTotalPrice() > 100 ? (
+                      {getCartTotal() > 100 ? (
                         <span className="text-green-600">Ücretsiz</span>
                       ) : (
                         "₺15.00"
@@ -266,7 +197,7 @@ export default function CartPage() {
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">KDV:</span>
                     <span className="font-medium">
-                      ₺{(getTotalPrice() * 0.18).toFixed(2)}
+                      ₺{(getCartTotal() * 0.18).toFixed(2)}
                     </span>
                   </div>
 
@@ -278,20 +209,20 @@ export default function CartPage() {
                       <span className="text-lg font-bold text-blue-600">
                         ₺
                         {(
-                          getTotalPrice() +
-                          (getTotalPrice() > 100 ? 0 : 15) +
-                          getTotalPrice() * 0.18
+                          getCartTotal() +
+                          (getCartTotal() > 100 ? 0 : 15) +
+                          getCartTotal() * 0.18
                         ).toFixed(2)}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {getTotalPrice() <= 100 && (
+                {getCartTotal() <= 100 && (
                   <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                     <p className="text-sm text-yellow-800">
-                      <strong>₺{(100 - getTotalPrice()).toFixed(2)}</strong>{" "}
-                      daha ekleyerek
+                      <strong>₺{(100 - getCartTotal()).toFixed(2)}</strong> daha
+                      ekleyerek
                       <strong> ücretsiz kargo</strong> kazanın!
                     </p>
                   </div>
