@@ -15,7 +15,7 @@ export default function RegisterForm({
     e.preventDefault();
     try {
       const user = await registerWithEmail(email, password);
-      setModalMessage(`Kayıt başarılı: ${user.email}`);
+      setModalMessage(`Kayıt başarılı. Aramıza hoş geldiniz!`);
     } catch (error: any) {
       // Firebase hata kodlarını kontrol et
       if (error?.code === "auth/email-already-in-use") {
