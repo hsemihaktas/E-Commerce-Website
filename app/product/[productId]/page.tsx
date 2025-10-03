@@ -8,6 +8,7 @@ import { Customer, OrderItem } from "../../../types/order";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import GlobalNavbar from "../../../components/layout/GlobalNavbar";
+import { useCart } from "../../../contexts/CartContext";
 
 interface Product {
   id: string;
@@ -32,7 +33,9 @@ export default function ProductPage({
   const [quantity, setQuantity] = useState(1);
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [ordering, setOrdering] = useState(false);
+  const [message, setMessage] = useState("");
   const router = useRouter();
+  const { addToCart } = useCart();
 
   // Müşteri bilgileri formu
   const [customerInfo, setCustomerInfo] = useState<Customer>({
@@ -144,6 +147,24 @@ Siparişiniz en kısa sürede hazırlanacak ve size ulaştırılacaktır.`);
     }
   };
 
+  const handleAddToCart = () => {
+    if (!product) return;
+
+    for (let i = 0; i < quantity; i++) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        stock: product.stock,
+        storeId: product.userId, // storeId olarak userId kullanıyoruz
+        userId: product.userId,
+      });
+    }
+
+    setMessage(`"${product.name}" (${quantity} adet) sepete eklendi!`);
+    setTimeout(() => setMessage(""), 3000);
+  };
+
   const totals = calculateTotals();
 
   if (loading) {
@@ -193,6 +214,11 @@ Siparişiniz en kısa sürede hazırlanacak ve size ulaştırılacaktır.`);
   return (
     <div className="min-h-screen bg-gray-50">
       <GlobalNavbar />
+      {message && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded fixed top-20 right-4 z-50">
+          {message}
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <nav className="flex mb-8" aria-label="Breadcrumb">
@@ -367,12 +393,12 @@ Siparişiniz en kısa sürede hazırlanacak ve size ulaştırılacaktır.`);
                   </div>
                 </div>
 
-                {/* Buy Button */}
+                {/* Add to Cart Button */}
                 <button
-                  onClick={() => setShowBuyModal(true)}
+                  onClick={handleAddToCart}
                   className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-medium text-lg hover:bg-blue-700 transition-colors"
                 >
-                  Hemen Satın Al - ₺{totals.total.toFixed(2)}
+                  Sepete Ekle - ₺{totals.total.toFixed(2)}
                 </button>
 
                 <div className="text-center">
