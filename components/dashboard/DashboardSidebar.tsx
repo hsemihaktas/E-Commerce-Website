@@ -17,6 +17,7 @@ export default function DashboardSidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const navigation: SidebarItem[] = [
     {
@@ -163,79 +164,100 @@ export default function DashboardSidebar() {
   return (
     <>
       {/* Mobile menu button */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
-        <button
-          type="button"
-          className="bg-white p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          <span className="sr-only">Open sidebar</span>
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      <div className="lg:hidden">
+        {/* Mobile header */}
+        <div className="fixed top-0 left-0 right-0 z-40 bg-white shadow-sm border-b border-gray-200 h-16 flex items-center px-4">
+          <button
+            type="button"
+            className="bg-white p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
-        </button>
+            <span className="sr-only">Open sidebar</span>
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+          <div className="ml-4">
+            <h1 className="text-lg font-semibold text-gray-900">E-Commerce</h1>
+          </div>
+        </div>
       </div>
 
       {/* Mobile menu overlay */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-40 flex">
-          <div
-            className="fixed inset-0 bg-gray-600 bg-opacity-75"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
-            <div className="absolute top-0 right-0 -mr-12 pt-2">
-              <button
-                type="button"
-                className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-                onClick={() => setIsMobileMenuOpen(false)}
+      <div
+        className={`lg:hidden fixed inset-0 z-50 flex transition-opacity duration-300 ${
+          isMobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <div
+          className={`fixed inset-0 bg-gray-600 transition-opacity duration-300 ${
+            isMobileMenuOpen ? "bg-opacity-75" : "bg-opacity-0"
+          }`}
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+        <div
+          className={`relative flex-1 flex flex-col max-w-xs w-full bg-white transform transition-transform duration-300 ease-in-out ${
+            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <div className="absolute top-0 right-0 -mr-12 pt-2">
+            <button
+              type="button"
+              className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <span className="sr-only">Close sidebar</span>
+              <svg
+                className="h-6 w-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <span className="sr-only">Close sidebar</span>
-                <svg
-                  className="h-6 w-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-            <SidebarContent
-              navigation={navigation}
-              pathname={pathname}
-              user={user}
-              onNavigate={handleNavigation}
-              onLogout={handleLogout}
-            />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
           </div>
-        </div>
-      )}
-
-      {/* Desktop sidebar */}
-      <div className="hidden lg:flex lg:flex-shrink-0">
-        <div className="flex flex-col w-64">
           <SidebarContent
             navigation={navigation}
             pathname={pathname}
             user={user}
             onNavigate={handleNavigation}
             onLogout={handleLogout}
+            isCollapsed={false}
+          />
+        </div>
+      </div>
+
+      {/* Desktop sidebar */}
+      <div className="hidden lg:flex lg:flex-shrink-0">
+        <div
+          className={`flex flex-col transition-all duration-300 ${
+            isCollapsed ? "w-16" : "w-64"
+          }`}
+        >
+          <SidebarContent
+            navigation={navigation}
+            pathname={pathname}
+            user={user}
+            onNavigate={handleNavigation}
+            onLogout={handleLogout}
+            isCollapsed={isCollapsed}
+            onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
           />
         </div>
       </div>
@@ -249,6 +271,8 @@ interface SidebarContentProps {
   user: any;
   onNavigate: (href: string) => void;
   onLogout: () => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 function SidebarContent({
@@ -257,32 +281,51 @@ function SidebarContent({
   user,
   onNavigate,
   onLogout,
+  isCollapsed = false,
+  onToggleCollapse,
 }: SidebarContentProps) {
   return (
     <div className="flex flex-col h-0 flex-1 border-r border-gray-200 bg-white">
       {/* Logo/Brand */}
-      <div className="flex items-center h-16 flex-shrink-0 px-4 bg-blue-600">
+      <div className="flex items-center h-16 flex-shrink-0 px-4 bg-blue-600 relative">
         <div className="flex items-center">
-          <div className="flex-shrink-0">
-            <div className="h-8 w-8 bg-white rounded-lg flex items-center justify-center">
-              <svg
-                className="h-5 w-5 text-blue-600"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
+          {!isCollapsed && (
+            <div>
+              <h1 className="text-sm font-semibold text-white">E-Commerce</h1>
+              <p className="text-xs text-blue-100">Admin Panel</p>
             </div>
-          </div>
-          <div className="ml-3">
-            <h1 className="text-sm font-semibold text-white">E-Commerce</h1>
-            <p className="text-xs text-blue-100">Admin Panel</p>
-          </div>
+          )}
+          {isCollapsed && (
+            <div className="w-full text-center">
+              <h1 className="text-lg font-bold text-white">EC</h1>
+            </div>
+          )}
         </div>
+
+        {/* Toggle button - only show on desktop */}
+        {onToggleCollapse && (
+          <button
+            onClick={onToggleCollapse}
+            className="absolute -right-3 top-1/2 transform -translate-y-1/2 bg-white border border-gray-200 rounded-full p-1.5 shadow-md hover:shadow-lg transition-all"
+            title={isCollapsed ? "Sidebar'ı Genişlet" : "Sidebar'ı Daralt"}
+          >
+            <svg
+              className={`w-3 h-3 text-gray-600 transition-transform duration-200 ${
+                isCollapsed ? "rotate-180" : ""
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
@@ -297,16 +340,19 @@ function SidebarContent({
                 key={item.name}
                 onClick={() => onNavigate(item.href)}
                 className={`
-                  group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left
+                  group flex items-center ${
+                    isCollapsed ? "justify-center px-2" : "px-2"
+                  } py-2 text-sm font-medium rounded-md w-full text-left
                   ${
                     isActive
                       ? "bg-blue-100 text-blue-900"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }
                 `}
+                title={isCollapsed ? item.name : undefined}
               >
                 <span
-                  className={`mr-3 ${
+                  className={`${isCollapsed ? "" : "mr-3"} ${
                     isActive
                       ? "text-blue-500"
                       : "text-gray-400 group-hover:text-gray-500"
@@ -314,7 +360,7 @@ function SidebarContent({
                 >
                   {item.icon}
                 </span>
-                {item.name}
+                {!isCollapsed && item.name}
               </button>
             );
           })}
@@ -323,7 +369,11 @@ function SidebarContent({
 
       {/* User section */}
       <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
-        <div className="flex items-center w-full">
+        <div
+          className={`flex items-center w-full ${
+            isCollapsed ? "justify-center" : ""
+          }`}
+        >
           <div className="flex-shrink-0">
             <div className="h-8 w-8 bg-gray-300 rounded-full flex items-center justify-center">
               <svg
@@ -339,17 +389,19 @@ function SidebarContent({
               </svg>
             </div>
           </div>
-          <div className="ml-3 flex-1">
-            <p className="text-sm font-medium text-gray-700 truncate">
-              {user?.email}
-            </p>
-            <button
-              onClick={onLogout}
-              className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              Çıkış Yap
-            </button>
-          </div>
+          {!isCollapsed && (
+            <div className="ml-3 flex-1">
+              <p className="text-sm font-medium text-gray-700 truncate">
+                {user?.email}
+              </p>
+              <button
+                onClick={onLogout}
+                className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                Çıkış Yap
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
