@@ -115,9 +115,17 @@ export const createStore = async (
     storeName: string;
     description: string;
     category: string;
+    email?: string;
     phone?: string;
     address?: string;
     city?: string;
+    website?: string;
+    businessType?: string;
+    taxNumber?: string;
+    businessAddress?: string;
+    instagram?: string;
+    facebook?: string;
+    twitter?: string;
   }
 ): Promise<void> => {
   try {
@@ -140,24 +148,21 @@ export const createStore = async (
       storeName: storeData.storeName,
       description: storeData.description,
       contactInfo: {
-        email: "",
+        email: storeData.email || "",
         phone: storeData.phone || "",
         address: storeData.address || "",
         city: storeData.city || "",
-        website: "",
+        website: storeData.website || "",
       },
       businessInfo: {
-        businessType:
-          storeData.category === "elektronik"
-            ? "Bireysel Satıcı"
-            : "Bireysel Satıcı",
-        taxNumber: "",
-        businessAddress: "",
+        businessType: storeData.businessType || "Bireysel Satıcı",
+        taxNumber: storeData.taxNumber || "",
+        businessAddress: storeData.businessAddress || "",
       },
       socialMedia: {
-        instagram: "",
-        facebook: "",
-        twitter: "",
+        instagram: storeData.instagram || "",
+        facebook: storeData.facebook || "",
+        twitter: storeData.twitter || "",
       },
       isActive: true,
       createdAt: serverTimestamp() as any,

@@ -15,9 +15,17 @@ export default function CreateStorePage() {
     storeName: "",
     description: "",
     category: "",
+    email: "",
     phone: "",
     address: "",
     city: "",
+    website: "",
+    businessType: "Bireysel Satıcı",
+    taxNumber: "",
+    businessAddress: "",
+    instagram: "",
+    facebook: "",
+    twitter: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAlertModal, setShowAlertModal] = useState(false);
@@ -63,19 +71,31 @@ export default function CreateStorePage() {
   };
 
   const validateForm = () => {
-    const required = ["storeName", "description", "category"];
+    const required = [
+      "storeName", "description", "category", "email", "phone", 
+      "address", "city", "website", "businessType", "taxNumber", "businessAddress"
+    ];
+    
+    const fieldNames: { [key: string]: string } = {
+      storeName: "Mağaza adı",
+      description: "Açıklama",
+      category: "Kategori",
+      email: "E-posta adresi",
+      phone: "Telefon",
+      address: "Adres",
+      city: "Şehir",
+      website: "Website",
+      businessType: "İş türü",
+      taxNumber: "Vergi numarası",
+      businessAddress: "İş adresi"
+    };
+    
     for (const field of required) {
       if (!formData[field as keyof typeof formData].trim()) {
         setAlertConfig({
           type: "error",
           title: "Eksik Bilgi",
-          message: `${
-            field === "storeName"
-              ? "Mağaza adı"
-              : field === "description"
-              ? "Açıklama"
-              : "Kategori"
-          } alanı zorunludur!`,
+          message: `${fieldNames[field]} alanı zorunludur!`,
         });
         setShowAlertModal(true);
         return false;
@@ -288,7 +308,7 @@ export default function CreateStorePage() {
                     htmlFor="phone"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Telefon
+                    Telefon *
                   </label>
                   <input
                     type="tel"
@@ -298,6 +318,7 @@ export default function CreateStorePage() {
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     placeholder="0555 123 45 67"
+                    required
                   />
                 </div>
 
@@ -307,7 +328,7 @@ export default function CreateStorePage() {
                     htmlFor="city"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Şehir
+                    Şehir *
                   </label>
                   <input
                     type="text"
@@ -317,6 +338,7 @@ export default function CreateStorePage() {
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     placeholder="İstanbul"
+                    required
                   />
                 </div>
               </div>
@@ -327,7 +349,7 @@ export default function CreateStorePage() {
                   htmlFor="address"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Adres
+                  Adres *
                 </label>
                 <textarea
                   id="address"
@@ -336,8 +358,196 @@ export default function CreateStorePage() {
                   value={formData.address}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="Mağaza adresiniz (isteğe bağlı)"
+                  placeholder="Mağaza adresiniz"
+                  required
                 />
+              </div>
+
+              {/* İletişim Bilgileri */}
+              <div className="border-t border-gray-200 pt-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  İletişim Bilgileri
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Email */}
+                  <div>
+                    <label
+                      htmlFor="email"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      E-posta Adresi *
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      placeholder="magaza@example.com"
+                      required
+                    />
+                  </div>
+
+                  {/* Website */}
+                  <div>
+                    <label
+                      htmlFor="website"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Website *
+                    </label>
+                    <input
+                      type="url"
+                      id="website"
+                      name="website"
+                      value={formData.website}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      placeholder="https://www.mağazam.com"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* İş Bilgileri */}
+              <div className="border-t border-gray-200 pt-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  İş Bilgileri
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* İş Türü */}
+                  <div>
+                    <label
+                      htmlFor="businessType"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      İş Türü *
+                    </label>
+                    <select
+                      id="businessType"
+                      name="businessType"
+                      value={formData.businessType}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      required
+                    >
+                      <option value="Bireysel Satıcı">Bireysel Satıcı</option>
+                      <option value="Limited Şirket">Limited Şirket</option>
+                      <option value="Anonim Şirket">Anonim Şirket</option>
+                      <option value="Şahış Şirketi">Şahış Şirketi</option>
+                      <option value="Kooperatif">Kooperatif</option>
+                      <option value="Dernek/Vakıf">Dernek/Vakıf</option>
+                      <option value="Diğer">Diğer</option>
+                    </select>
+                  </div>
+
+                  {/* Vergi Numarası */}
+                  <div>
+                    <label
+                      htmlFor="taxNumber"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Vergi Numarası *
+                    </label>
+                    <input
+                      type="text"
+                      id="taxNumber"
+                      name="taxNumber"
+                      value={formData.taxNumber}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      placeholder="1234567890"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* İş Adresi */}
+                <div className="mt-6">
+                  <label
+                    htmlFor="businessAddress"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    İş Adresi *
+                  </label>
+                  <textarea
+                    id="businessAddress"
+                    name="businessAddress"
+                    rows={3}
+                    value={formData.businessAddress}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder="Fatura/vergi adresi"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Sosyal Medya */}
+              <div className="border-t border-gray-200 pt-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Sosyal Medya
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Instagram */}
+                  <div>
+                    <label
+                      htmlFor="instagram"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Instagram
+                    </label>
+                    <input
+                      type="url"
+                      id="instagram"
+                      name="instagram"
+                      value={formData.instagram}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      placeholder="https://instagram.com/magaza"
+                    />
+                  </div>
+
+                  {/* Facebook */}
+                  <div>
+                    <label
+                      htmlFor="facebook"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Facebook
+                    </label>
+                    <input
+                      type="url"
+                      id="facebook"
+                      name="facebook"
+                      value={formData.facebook}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      placeholder="https://facebook.com/magaza"
+                    />
+                  </div>
+
+                  {/* Twitter */}
+                  <div>
+                    <label
+                      htmlFor="twitter"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Twitter
+                    </label>
+                    <input
+                      type="url"
+                      id="twitter"
+                      name="twitter"
+                      value={formData.twitter}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      placeholder="https://twitter.com/magaza"
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Submit Button */}
