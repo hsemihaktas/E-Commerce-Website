@@ -11,18 +11,21 @@ Demo hesabı ile giriş yapabilir veya yeni bir hesap oluşturarak platformu tes
 ## ✨ Özellikler
 
 ### 👤 Kullanıcı Yönetimi
+
 - **Güvenli Kimlik Doğrulama**: Firebase Authentication ile email/şifre girişi
 - **Hesap Oluşturma**: Hızlı ve kolay kayıt işlemi
 - **Profil Yönetimi**: Kullanıcı bilgilerini güncelleme
 - **Şifre Sıfırlama**: Email ile şifre sıfırlama
 
 ### 🏪 Mağaza Yönetimi
+
 - **Mağaza Oluşturma**: Kolay ve hızlı mağaza kurulum süreci
 - **Mağaza Bilgileri**: İsim, açıklama, kategori, iletişim bilgileri
 - **Mağaza Ayarları**: Kapsamlı mağaza yönetim paneli
 - **Mağaza Silme**: Güvenli mağaza ve veri silme işlemi
 
 ### 📦 Ürün Yönetimi
+
 - **Ürün Ekleme**: Detaylı ürün bilgileri ve resim yükleme
 - **Ürün Düzenleme**: Mevcut ürünleri güncelleme
 - **Stok Takibi**: Gerçek zamanlı stok kontrolü
@@ -30,6 +33,7 @@ Demo hesabı ile giriş yapabilir veya yeni bir hesap oluşturarak platformu tes
 - **Fiyat Yönetimi**: Esnek fiyatlandırma sistemi
 
 ### 🛒 Alışveriş Deneyimi
+
 - **Ürün Kataloğu**: Kategorilere göre ürün browsing
 - **Sepet Sistemi**: Gelişmiş sepet yönetimi
 - **Sipariş Verme**: Kolay sipariş oluşturma
@@ -37,6 +41,7 @@ Demo hesabı ile giriş yapabilir veya yeni bir hesap oluşturarak platformu tes
 - **Mağaza Sayfası**: Her mağaza için özel vitrin
 
 ### 📊 Dashboard ve Raporlama
+
 - **Anlık İstatistikler**: Toplam ürün, stok, sipariş sayıları
 - **Finansal Takip**: Kazanılan para ve bekleyen ödemeler
 - **Stok Uyarıları**: Az stok ve stok bitti bildirimleri
@@ -45,6 +50,7 @@ Demo hesabı ile giriş yapabilir veya yeni bir hesap oluşturarak platformu tes
 - **Son Aktiviteler**: En son eklenen ürünler ve işlemler
 
 ### 🎨 Modern Arayüz
+
 - **Responsive Tasarım**: Mobil, tablet ve masaüstü uyumlu
 - **Modern UI/UX**: Tailwind CSS ile şık tasarım
 - **Dark/Light Mode**: Kullanıcı tercihine göre tema
@@ -54,18 +60,21 @@ Demo hesabı ile giriş yapabilir veya yeni bir hesap oluşturarak platformu tes
 ## 🛠️ Teknoloji Yığını
 
 ### Frontend
+
 - **Next.js 15.5.4**: React tabanlı fullstack framework
 - **TypeScript**: Type-safe geliştirme
 - **Tailwind CSS**: Modern ve responsive tasarım
 - **React Hooks**: Modern React geliştirme
 
 ### Backend & Database
+
 - **Firebase Firestore**: NoSQL veritabanı
 - **Firebase Authentication**: Güvenli kimlik doğrulama
 - **Firebase Storage**: Dosya ve resim depolama
 - **Real-time Updates**: Anlık veri senkronizasyonu
 
 ### Development Tools
+
 - **ESLint**: Kod kalitesi kontrolü
 - **PostCSS**: CSS işleme ve optimizasyon
 - **Vercel**: Deployment ve hosting
@@ -73,6 +82,7 @@ Demo hesabı ile giriş yapabilir veya yeni bir hesap oluşturarak platformu tes
 ## 📱 Kullanım Senaryoları
 
 ### Mağaza Sahibi Olarak:
+
 1. **Kayıt Ol** → Yeni hesap oluştur
 2. **Mağaza Aç** → Mağaza bilgilerini doldur
 3. **Ürün Ekle** → Ürünlerini kataloguna ekle
@@ -80,6 +90,7 @@ Demo hesabı ile giriş yapabilir veya yeni bir hesap oluşturarak platformu tes
 5. **Sipariş Yönet** → Gelen siparişleri işle
 
 ### Müşteri Olarak:
+
 1. **Ürün Ara** → Kategorilere göz at
 2. **Mağaza Ziyaret Et** → İlgini çeken mağazaları keşfet
 3. **Sepete Ekle** → Beğendiğin ürünleri sepete at
@@ -88,6 +99,7 @@ Demo hesabı ile giriş yapabilir veya yeni bir hesap oluşturarak platformu tes
 ## 🚀 Kurulum ve Çalıştırma
 
 ### Gereksinimler
+
 - Node.js 18.17 veya üzeri
 - npm, yarn, pnpm veya bun
 - Firebase projesi
@@ -95,12 +107,14 @@ Demo hesabı ile giriş yapabilir veya yeni bir hesap oluşturarak platformu tes
 ### Kurulum Adımları
 
 1. **Projeyi klonlayın:**
+
 ```bash
 git clone https://github.com/hsemihaktas/E-Commerce-Website.git
 cd E-Commerce-Website
 ```
 
 2. **Bağımlılıkları yükleyin:**
+
 ```bash
 npm install
 # veya
@@ -108,19 +122,28 @@ yarn install
 ```
 
 3. **Environment variables'ları ayarlayın:**
+
 ```bash
 cp .env.example .env.local
 ```
 
 `.env.local` dosyasında Firebase yapılandırmanızı ekleyin:
+
 ```env
 NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-# ... diğer Firebase config değerleri
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project_storage_bucket
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
+
+NEXT_PUBLIC_API_BASE_URL=your_api_base_url
+NEXT_PUBLIC_ANALYTICS_ID=your_analytics_id
 ```
 
 4. **Development server'ı başlatın:**
+
 ```bash
 npm run dev
 # veya
@@ -128,6 +151,7 @@ yarn dev
 ```
 
 5. **Tarayıcınızda açın:**
+
 ```
 http://localhost:3000
 ```
@@ -154,32 +178,47 @@ http://localhost:3000
 ## 🔧 Yapılandırma
 
 ### Firebase Kurulumu
+
 1. [Firebase Console](https://console.firebase.google.com/) üzerinden yeni proje oluşturun
 2. Authentication'ı aktifleştirin (Email/Password)
 3. Firestore Database oluşturun
 4. Web app ekleyip config değerlerini alın
 
 ### Firestore Güvenlik Kuralları
+
+Aşağıdaki kurallar Firestore veritabanınız için önerilmektedir:
+
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Kullanıcılar sadece kendi verilerine erişebilir
+    // Users koleksiyonu - sadece kendi verilerini okuyabilir/yazabilir
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
-    
-    // Ürünler herkese açık (okuma), sadece sahibi yazabilir
+
+    // Products koleksiyonu - herkes okuyabilir, sadece sahibi yazabilir
     match /products/{productId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == resource.data.storeId;
+      allow write: if request.auth != null &&
+                   (request.auth.uid == resource.data.userId ||
+                    request.auth.uid == request.resource.data.userId);
     }
-    
-    // Siparişler ilgili taraflara açık
+
+    // Orders koleksiyonu - önemli kısım bu!
     match /orders/{orderId} {
-      allow read, write: if request.auth != null && 
-        (request.auth.uid == resource.data.customerId || 
-         request.auth.uid == resource.data.storeOwnerId);
+      allow read: if request.auth != null &&
+                  request.auth.token.email == resource.data.customer.email;
+      allow create: if request.auth != null &&
+                    request.auth.token.email == request.resource.data.customer.email;
+      allow update: if request.auth != null &&
+                    (request.auth.token.email == resource.data.customer.email ||
+                     request.auth.uid == resource.data.storeOwnerId);
+    }
+
+    // Diğer koleksiyonlar için genel kural
+    match /{document=**} {
+      allow read, write: if request.auth != null;
     }
   }
 }
@@ -188,6 +227,7 @@ service cloud.firestore {
 ## 🚀 Deployment
 
 ### Vercel (Önerilen)
+
 1. Projeyi GitHub'a push edin
 2. [Vercel](https://vercel.com) hesabınızla GitHub'ı bağlayın
 3. Projeyi import edin
@@ -195,6 +235,7 @@ service cloud.firestore {
 5. Deploy edin
 
 ### Manuel Deployment
+
 ```bash
 npm run build
 npm run start
