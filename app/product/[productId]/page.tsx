@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebaseConfig";
 import { createOrder } from "../../../services/orderService";
@@ -23,8 +23,9 @@ interface Product {
 export default function ProductPage({
   params,
 }: {
-  params: { productId: string };
+  params: Promise<{ productId: string }>;
 }) {
+  const resolvedParams = use(params);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
@@ -47,12 +48,12 @@ export default function ProductPage({
 
   useEffect(() => {
     loadProduct();
-  }, [params.productId]);
+  }, [resolvedParams.productId]);
 
   const loadProduct = async () => {
     try {
       setLoading(true);
-      const productDoc = await getDoc(doc(db, "products", params.productId));
+      const productDoc = await getDoc(doc(db, "products", resolvedParams.productId));
 
       if (productDoc.exists()) {
         setProduct({

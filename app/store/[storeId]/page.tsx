@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../../firebaseConfig";
 import { createOrder } from "../../../services/orderService";
@@ -21,7 +21,8 @@ interface CartItem extends Product {
   quantity: number;
 }
 
-export default function StorePage({ params }: { params: { storeId: string } }) {
+export default function StorePage({ params }: { params: Promise<{ storeId: string }> }) {
+  const resolvedParams = use(params);
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,14 +43,14 @@ export default function StorePage({ params }: { params: { storeId: string } }) {
 
   useEffect(() => {
     loadProducts();
-  }, [params.storeId]);
+  }, [resolvedParams.storeId]);
 
   const loadProducts = async () => {
     try {
       setLoading(true);
       const q = query(
         collection(db, "products"),
-        where("userId", "==", params.storeId)
+        where("userId", "==", resolvedParams.storeId)
       );
 
       const querySnapshot = await getDocs(q);
@@ -161,7 +162,7 @@ export default function StorePage({ params }: { params: { storeId: string } }) {
 
       // Siparişi oluştur
       const orderId = await createOrder(
-        params.storeId,
+        resolvedParams.storeId,
         customerInfo,
         orderItems,
         "cash" // Default olarak kapıda ödeme
